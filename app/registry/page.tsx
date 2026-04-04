@@ -137,8 +137,8 @@ export default function RegistryPage() {
                       <p><span className="text-foreground/60">Chain Depth:</span> {m.chain_depth || 1}</p>
                       <p><span className="text-foreground/60">Last Signed:</span> {m.created_at ? new Date(m.created_at).toLocaleDateString() : 'Unknown'}</p>
                     </div>
-                    <Link 
-                      href={`/verify?chain_id=${m.chain_id || ''}`}
+                    <Link
+                      href={`/registry/${m.chain_id || ''}`}
                       className="flex items-center justify-center gap-2 w-full py-2.5 mt-auto rounded border border-primary/50 bg-primary/10 text-primary font-mono text-xs hover:bg-primary hover:text-primary-foreground transition-all duration-300"
                     >
                       <LinkIcon className="h-3 w-3" /> VIEW CHAIN
