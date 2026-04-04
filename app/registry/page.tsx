@@ -24,8 +24,47 @@ export default function RegistryPage() {
   useEffect(() => {
     fetch("https://etch-server-production.up.railway.app/anchors")
       .then(res => res.json())
-      .then(data => {
-        setModules(Array.isArray(data) ? data : [])
+      .then(async data => {
+        if (Array.isArray(data)) {
+          // Deduplicate by file_path
+          const latestAnchors = new Map<string, any>()
+          for (const anchor of data) {
+            const current = latestAnchors.get(anchor.file_path)
+            if (!current) {
+              latestAnchors.set(anchor.file_path, anchor)
+            } else {
+              const currentDepth = current.chain_depth || 1
+              const anchorDepth = anchor.chain_depth || 1
+              if (anchorDepth > currentDepth) {
+                latestAnchors.set(anchor.file_path, anchor)
+              } else if (anchorDepth === currentDepth) {
+                if (new Date(anchor.created_at) > new Date(current.created_at)) {
+                  latestAnchors.set(anchor.file_path, anchor)
+                }
+              }
+            }
+          }
+          
+          const dedupedModules = Array.from(latestAnchors.values())
+          
+          // Fetch dependencies for each module
+          const modulesWithDeps = await Promise.all(dedupedModules.map(async (m) => {
+            try {
+              const res = await fetch(`https://etch-server-production.up.railway.app/anchors/${m.chain_id}/dependencies`)
+              if (res.ok) {
+                const depData = await res.json()
+                return { ...m, dependencies: depData }
+              }
+              return { ...m, dependencies: { depends_on: [], used_by: [] } }
+            } catch (err) {
+              return { ...m, dependencies: { depends_on: [], used_by: [] } }
+            }
+          }))
+
+          setModules(modulesWithDeps)
+        } else {
+          setModules([])
+        }
         setLoading(false)
       })
       .catch(err => {
@@ -95,8 +134,19 @@ export default function RegistryPage() {
                   <div key={i} className="flex flex-col p-6 rounded-xl border border-primary/20 bg-card/40 hover:bg-card/60 transition-colors group">
                     <div className="flex justify-between items-start mb-4">
                       <h3 className="font-mono font-semibold text-lg text-primary truncate pr-2" title={m.file_path}>{m.file_path ? m.file_path.split(/[/\\]/).pop() : 'Unknown'}</h3>
-                      <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/10 border border-primary/30 text-primary text-[10px] font-mono leading-none">
-                        <ShieldCheck className="h-3 w-3" /> VERIFIED
+                      <div className="flex items-center gap-2">
+                        {m.dependencies?.depends_on?.length > 0 ? (
+                          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-purple-500/10 border border-purple-500/30 text-purple-400 text-[10px] font-mono leading-none">
+                            MERGED ({m.dependencies.depends_on.length})
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-green-500/10 border border-green-500/30 text-green-400 text-[10px] font-mono leading-none">
+                            STANDALONE
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/10 border border-primary/30 text-primary text-[10px] font-mono leading-none">
+                          <ShieldCheck className="h-3 w-3" /> VERIFIED       
+                        </div>
                       </div>
                     </div>
                     <div className="space-y-2 mb-6 flex-1 text-sm font-mono text-muted-foreground">
