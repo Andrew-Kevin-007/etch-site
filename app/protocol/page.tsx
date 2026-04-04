@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Terminal, Shield, AlertTriangle, ArrowRight, FileText, Check, X } from "lucide-react"
+import { Terminal, Shield, ArrowRight, FileText, Check, X } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { CursorGlow } from "@/components/cursor-glow"
@@ -9,129 +9,137 @@ import { CursorGlow } from "@/components/cursor-glow"
 export default function ProtocolPage() {
   return (
     <>
-      <main className="relative min-h-screen overflow-hidden scanlines">
+      <main className="relative min-h-screen overflow-hidden flex flex-col bg-[#0a0a0a]">   
         <CursorGlow />
-        <div className="relative z-10 flex flex-col min-h-screen">
-          <Header />
-          
-          <div className="flex-1 w-full mx-auto pt-36 pb-24 px-4 sm:px-8 lg:px-12 max-w-7xl">
-            <div className="mb-16 border-b border-primary/20 pb-10 text-center md:text-left">
-              <h1 className="text-5xl md:text-6xl font-bold tracking-tight font-mono text-primary mb-4 flex items-center justify-center md:justify-start gap-4">
-                <Terminal className="h-12 w-12 md:h-14 md:w-14" />
-                PROTOCOL
-              </h1>
-              <p className="text-primary/70 font-mono tracking-widest uppercase text-base sm:text-lg">
-                etch-v1 specification
-              </p>
-            </div>
+        <Header />
 
-            <div className="space-y-16">
-              
-              {/* OVERVIEW */}
-              <section className="relative rounded-2xl border border-primary/20 bg-card/40 glass shadow-md p-8 sm:p-10 lg:p-12">
-                <h2 className="text-2xl font-mono text-primary mb-6 flex items-center gap-3 border-b border-primary/10 pb-4">
-                  <FileText className="h-6 w-6" /> OVERVIEW
-                </h2>
-                <p className="font-mono text-muted-foreground leading-relaxed text-base sm:text-lg tracking-wide">
-                  etch is a cryptographic authorship protocol. AI can carry code. Only humans can sign it. 
-                  Code may change. Authorship should not disappear.
-                </p>
-              </section>
-
-              <p className="font-mono text-primary/80 tracking-widest text-sm uppercase italic py-8 text-center border-y border-transparent bg-primary/5 rounded-lg border-dashed">
-                Protocol internals are available to verified contributors only.
-              </p>
-
-              {/* CONTRIBUTION STANDARDS & THREAT MODEL grid */}
-              <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-                
-                {/* CONTRIBUTION STANDARDS */}
-                <section className="flex flex-col relative rounded-2xl border border-primary/20 bg-card/40 glass shadow-md p-8 sm:p-10">
-                  <h2 className="text-xl font-mono text-primary mb-6 flex items-center gap-3 border-b border-primary/10 pb-4">
-                    <Shield className="h-6 w-6" /> CONTRIBUTION STANDARDS
-                  </h2>
-                  <ul className="space-y-4 font-mono text-base text-muted-foreground list-none pl-0 flex-1">
-                    <li className="flex items-start gap-3">
-                      <span className="text-primary mt-0.5 font-bold">&gt;</span> Minimum score: 0.6 / 1.0
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-primary mt-0.5 font-bold">&gt;</span> Logic weight: 40% <br/><span className="text-sm opacity-70">new functions, control flow, error handling</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-primary mt-0.5 font-bold">&gt;</span> Architecture weight: 30% <br/><span className="text-sm opacity-70">new structs, traits, modules</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-primary mt-0.5 font-bold">&gt;</span> Complexity weight: 20% <br/><span className="text-sm opacity-70">cyclomatic complexity delta</span>
-                    </li>
-                    <li className="flex items-start gap-3 text-red-400 mt-2">
-                      <span className="text-red-500 mt-0.5 font-bold">&gt;</span> Disqualifiers: <br/><span className="text-sm opacity-80">dead code, abstraction spam, test-only changes, unsupported files</span>
-                    </li>
-                  </ul>
-                </section>
-
-                {/* THREAT MODEL */}
-                <section className="flex flex-col relative rounded-2xl border border-primary/20 bg-card/40 glass shadow-md p-8 sm:p-10">
-                  <h2 className="text-xl font-mono text-primary mb-6 flex items-center gap-3 border-b border-primary/10 pb-4">
-                    <Shield className="h-6 w-6" /> THREAT MODEL
-                  </h2>
-                  
-                  <div className="flex-1 space-y-8">
-                    <div>
-                      <h3 className="text-sm font-mono text-primary mb-3 uppercase tracking-widest font-bold flex items-center gap-2">
-                        <Check className="h-4 w-4" /> PROTECTS AGAINST
-                      </h3>
-                      <ul className="space-y-2 font-mono text-sm text-muted-foreground">
-                        <li className="flex items-start gap-2"><div className="w-1 h-1 rounded-full bg-primary mt-2"></div> Unauthorized authorship claims</li>
-                        <li className="flex items-start gap-2"><div className="w-1 h-1 rounded-full bg-primary mt-2"></div> Chain tampering and history rewriting</li>
-                        <li className="flex items-start gap-2"><div className="w-1 h-1 rounded-full bg-primary mt-2"></div> Replay attacks across contexts</li>
-                        <li className="flex items-start gap-2"><div className="w-1 h-1 rounded-full bg-primary mt-2"></div> AI-generated code claiming human authorship</li>
-                      </ul>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-mono text-red-500 mb-3 uppercase tracking-widest font-bold flex items-center gap-2">
-                        <X className="h-4 w-4" /> DOES NOT PROTECT AGAINST
-                      </h3>
-                      <ul className="space-y-2 font-mono text-sm text-muted-foreground">
-                        <li className="flex items-start gap-2"><div className="w-1 h-1 rounded-full bg-red-500 mt-2"></div> Private key theft</li>
-                        <li className="flex items-start gap-2"><div className="w-1 h-1 rounded-full bg-red-500 mt-2"></div> Social engineering</li>
-                        <li className="flex items-start gap-2"><div className="w-1 h-1 rounded-full bg-red-500 mt-2"></div> Copyright or licensing disputes</li>
-                        <li className="flex items-start gap-2"><div className="w-1 h-1 rounded-full bg-red-500 mt-2"></div> Code quality or correctness</li>
-                      </ul>
-                    </div>
-                  </div>
-                </section>
-
-              </div>
-
-              {/* AI CANNOT SIGN */}
-              <section className="relative rounded-3xl border border-red-500/50 bg-red-500/5 shadow-[0_0_80px_rgba(239,68,68,0.15)] p-12 sm:p-16 md:p-24 text-center my-20 w-full overflow-hidden">
-                <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(239,68,68,0.05)_50%,transparent_75%,transparent_100%)] bg-[length:250px_250px] animate-[slide_10s_linear_infinite]"></div>
-                
-                <h2 className="relative z-10 text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-mono text-red-500 mb-8 font-black tracking-[0.2em] uppercase drop-shadow-lg">
-                  AI CANNOT SIGN
-                </h2>
-                <p className="relative z-10 font-mono text-red-400/90 text-xl sm:text-2xl lg:text-3xl max-w-4xl mx-auto leading-relaxed font-bold tracking-wide">
-                  AI systems cannot produce valid etch fingerprints. 
-                  A valid signature requires a <span className="text-red-400 underline decoration-red-500/50 underline-offset-8">human private key</span>. 
-                  No prompt, model, or agent can forge authorship.
-                </p>
-              </section>
-
-              {/* CTA */}
-              <div className="pt-4 mb-8 text-center">
-                <Link
-                  href="/registry"
-                  className="inline-flex items-center justify-center gap-4 px-10 py-5 rounded-lg bg-primary/10 border border-primary/40 text-primary font-mono text-lg font-bold hover:bg-primary hover:text-primary-foreground transition-all duration-300 shadow-[0_0_20px_rgba(34,197,94,0.15)] hover:shadow-[0_0_40px_rgba(34,197,94,0.3)] tracking-widest uppercase"
-                >
-                  EXPLORE REGISTRY <ArrowRight className="h-6 w-6" />
-                </Link>
-              </div>
-
-            </div>
+        <div className="flex-1 w-full max-w-[1200px] mx-auto pt-32 pb-24 px-6">
+          <div className="mb-20 text-center md:text-left">
+            <h1 className="text-5xl md:text-6xl font-bold tracking-tight font-sans text-white mb-6 flex items-center justify-center md:justify-start gap-4">
+              <Terminal className="h-10 w-10 md:h-12 md:w-12 text-[#00ff9d]" />
+              PROTOCOL
+            </h1>
+            <p className="text-muted-foreground font-mono tracking-widest uppercase text-sm sm:text-base border-b border-[#00ff9d]/20 pb-8 inline-block md:block">
+              etch-v1 specification
+            </p>
           </div>
-          <Footer />
+
+          {/* OVERVIEW */}
+          <section className="mb-16">
+            <h2 className="text-lg font-mono text-[#00ff9d] mb-4 flex items-center gap-3">
+              <FileText className="h-5 w-5" /> OVERVIEW
+            </h2>
+            <p className="font-sans text-white leading-relaxed text-xl sm:text-2xl font-light pb-4 border-b border-border">
+              ETCH is a cryptographic authorship protocol. AI can carry code. Only humans can sign it. Code may change. Authorship should not disappear.
+            </p>
+          </section>
+
+          <p className="font-mono text-[#00ff9d]/70 tracking-widest text-xs uppercase my-16 text-center border border-[#00ff9d]/10 bg-[#00ff9d]/5 rounded p-4 font-bold">
+            Protocol internals are available to verified contributors only.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-10 mb-24">        
+            {/* CONTRIBUTION STANDARDS */}
+            <section className="flex flex-col">
+              <h2 className="text-sm font-mono text-[#00ff9d] mb-6 flex items-center gap-3 uppercase tracking-widest font-bold border-b border-border pb-3">
+                <Shield className="h-4 w-4" /> Contribution Standards  
+              </h2>
+              <ul className="space-y-6 font-mono text-sm text-muted-foreground list-none pl-0">
+                <li className="flex items-start gap-3">
+                  <span className="text-[#00ff9d] mt-0.5 font-bold">&gt;</span> 
+                  <div>
+                    <span className="text-white">Minimum score: 0.6 / 1.0</span>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-[#00ff9d] mt-0.5 font-bold">&gt;</span>
+                  <div>
+                    <span className="text-white bg-[#111] px-1 py-0.5 rounded mr-2">Logic weight: 40%</span> 
+                    <p className="mt-2 text-xs opacity-70 leading-relaxed font-sans">new functions, control flow, error handling</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-[#00ff9d] mt-0.5 font-bold">&gt;</span>
+                  <div>
+                     <span className="text-white bg-[#111] px-1 py-0.5 rounded mr-2">Architecture weight: 30%</span> 
+                     <p className="mt-2 text-xs opacity-70 leading-relaxed font-sans">new structs, traits, modules</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-[#00ff9d] mt-0.5 font-bold">&gt;</span>
+                  <div>
+                    <span className="text-white bg-[#111] px-1 py-0.5 rounded mr-2">Complexity weight: 20%</span> 
+                    <p className="mt-2 text-xs opacity-70 leading-relaxed font-sans">cyclomatic complexity delta</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3 mt-4 pt-4 border-t border-border">
+                  <span className="text-red-500 mt-0.5 font-bold">&gt;</span> 
+                  <div>
+                    <span className="text-red-400 font-bold uppercase tracking-wider">Disqualifiers</span>
+                    <p className="mt-2 text-xs opacity-80 leading-relaxed text-red-500/70 font-sans">dead code, abstraction spam, test-only changes, unsupported files</p>
+                  </div>
+                </li>
+              </ul>
+            </section>
+
+            {/* THREAT MODEL */}
+            <section className="flex flex-col">
+              <h2 className="text-sm font-mono text-[#00ff9d] mb-6 flex items-center gap-3 uppercase tracking-widest font-bold border-b border-border pb-3">
+                <Shield className="h-4 w-4" /> Threat Model
+              </h2>
+
+              <div className="flex-1 space-y-10">
+                <div>
+                  <h3 className="text-xs font-mono text-white mb-4 uppercase tracking-widest font-bold flex items-center gap-2">
+                    <Check className="h-3 w-3 text-[#00ff9d]" /> Protects against
+                  </h3>
+                  <ul className="space-y-4 font-sans text-sm text-muted-foreground">
+                    <li className="flex items-start gap-3"><div className="w-1 h-1 rounded-full bg-[#00ff9d] mt-2 shrink-0"></div> Unauthorized authorship claims</li>
+                    <li className="flex items-start gap-3"><div className="w-1 h-1 rounded-full bg-[#00ff9d] mt-2 shrink-0"></div> Chain tampering and history rewriting</li>
+                    <li className="flex items-start gap-3"><div className="w-1 h-1 rounded-full bg-[#00ff9d] mt-2 shrink-0"></div> Replay attacks across contexts</li>
+                    <li className="flex items-start gap-3"><div className="w-1 h-1 rounded-full bg-[#00ff9d] mt-2 shrink-0"></div> AI-generated code claiming human authorship</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-xs font-mono text-white mb-4 uppercase tracking-widest font-bold flex items-center gap-2">
+                    <X className="h-3 w-3 text-red-500" /> Does not protect against 
+                  </h3>
+                  <ul className="space-y-4 font-sans text-sm text-muted-foreground">
+                    <li className="flex items-start gap-3"><div className="w-1 h-1 rounded-full bg-red-500 mt-2 shrink-0"></div> Private key theft</li>    
+                    <li className="flex items-start gap-3"><div className="w-1 h-1 rounded-full bg-red-500 mt-2 shrink-0"></div> Social engineering</li>   
+                    <li className="flex items-start gap-3"><div className="w-1 h-1 rounded-full bg-red-500 mt-2 shrink-0"></div> Copyright or licensing disputes</li>
+                    <li className="flex items-start gap-3"><div className="w-1 h-1 rounded-full bg-red-500 mt-2 shrink-0"></div> Code quality or correctness</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* AI CANNOT SIGN STATEMENT */}
+          <section className="mb-24 py-16 md:py-24 border-y border-[#222]">
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-sans text-white mb-8 font-black uppercase tracking-tight text-center">
+              AI <span className="text-red-500">CANNOT</span> SIGN
+            </h2>
+            <p className="font-sans text-muted-foreground text-lg md:text-2xl max-w-4xl mx-auto leading-relaxed text-center font-light">
+              AI systems cannot produce valid ETCH fingerprints.       
+              A valid signature requires a <span className="text-white font-medium border-b-2 border-red-500">human private key</span>.
+              No prompt, model, or agent can forge authorship.
+            </p>
+          </section>
+
+          {/* CTA */}
+          <div className="text-center">
+            <Link
+              href="/registry"
+              className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded bg-[#00ff9d] text-black font-sans font-bold hover:bg-[#00ff9d]/90 transition-colors uppercase tracking-widest text-sm"
+            >
+              Explore Registry <ArrowRight className="h-4 w-4" />      
+            </Link>
+          </div>
+
         </div>
+        <Footer />
       </main>
     </>
   )
