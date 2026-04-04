@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Terminal, Shield, AlertTriangle, Code, ArrowRight, FileText, Lock, GitMerge, Check, X } from "lucide-react"
+import { Terminal, Shield, AlertTriangle, ArrowRight, FileText, Check, X } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { CursorGlow } from "@/components/cursor-glow"
@@ -38,84 +38,9 @@ export default function ProtocolPage() {
                 </p>
               </section>
 
-              {/* FINGERPRINT FORMAT */}
-              <section className="relative rounded-xl border border-primary/20 bg-card/40 glass shadow-md p-6 sm:p-8 overflow-x-auto">
-                <h2 className="text-xl font-mono text-primary mb-6 flex items-center gap-2">
-                  <Code className="h-5 w-5" /> FINGERPRINT FORMAT
-                </h2>
-                <table className="w-full text-left border-collapse font-mono text-sm">
-                  <thead>
-                    <tr className="border-b border-primary/30 text-primary">
-                      <th className="py-3 pr-4 font-normal">Field</th>
-                      <th className="py-3 pr-4 font-normal">Type</th>
-                      <th className="py-3 font-normal">Description</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-primary/10 text-muted-foreground">
-                    <tr className="hover:bg-primary/5 transition-colors">
-                      <td className="py-3 pr-4 text-primary/90">contributor_pubkey</td>
-                      <td className="py-3 pr-4 whitespace-nowrap">hex[64]</td>
-                      <td className="py-3">Ed25519 public key of the author</td>
-                    </tr>
-                    <tr className="hover:bg-primary/5 transition-colors">
-                      <td className="py-3 pr-4 text-primary/90">timestamp</td>
-                      <td className="py-3 pr-4 whitespace-nowrap">RFC3339 UTC</td>
-                      <td className="py-3">When the contribution was signed</td>
-                    </tr>
-                    <tr className="hover:bg-primary/5 transition-colors">
-                      <td className="py-3 pr-4 text-primary/90">code_hash</td>
-                      <td className="py-3 pr-4 whitespace-nowrap">hex[64]</td>
-                      <td className="py-3">SHA-256 of the file contents</td>
-                    </tr>
-                    <tr className="hover:bg-primary/5 transition-colors">
-                      <td className="py-3 pr-4 text-primary/90">prev_hash</td>
-                      <td className="py-3 pr-4 whitespace-nowrap">hex[64]</td>
-                      <td className="py-3">Hash of previous chain entry</td>
-                    </tr>
-                    <tr className="hover:bg-primary/5 transition-colors">
-                      <td className="py-3 pr-4 text-primary/90">signature</td>
-                      <td className="py-3 pr-4 whitespace-nowrap">hex[128]</td>
-                      <td className="py-3">Ed25519 signature over canonical payload</td>
-                    </tr>
-                    <tr className="hover:bg-primary/5 transition-colors">
-                      <td className="py-3 pr-4 text-primary/90">metadata</td>
-                      <td className="py-3 pr-4 whitespace-nowrap">object</td>
-                      <td className="py-3">Optional name, project, domain fields</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </section>
-
-              {/* SIGNING ALGORITHM */}
-              <section className="relative rounded-xl border border-primary/20 bg-card/40 glass shadow-md p-6 sm:p-8">
-                <h2 className="text-xl font-mono text-primary mb-4 flex items-center gap-2">
-                  <Lock className="h-5 w-5" /> SIGNING ALGORITHM
-                </h2>
-                <div className="bg-background/80 border border-primary/20 rounded p-4 overflow-x-auto">
-                  <pre className="font-mono text-sm text-primary/80"><code>{`payload = {
-  protocol: "etch-v1",
-  algorithm: "sha2-256",
-  code_hash: hash(file_contents),
-  contributor: public_key,
-  prev_entry: hash(previous_fingerprint),
-  timestamp: utc_now()
-}
-signature = ed25519_sign(private_key, canonical_json(payload))`}</code></pre>
-                </div>
-              </section>
-
-              {/* CHAIN STRUCTURE */}
-              <section className="relative rounded-xl border border-primary/20 bg-card/40 glass shadow-md p-6 sm:p-8">
-                <h2 className="text-xl font-mono text-primary mb-4 flex items-center gap-2">
-                  <GitMerge className="h-5 w-5" /> CHAIN STRUCTURE
-                </h2>
-                <div className="bg-background/80 border border-primary/20 rounded p-4 overflow-x-auto">
-                  <pre className="font-mono text-sm text-primary/80"><code>{`chain = [fingerprint_1, fingerprint_2, ..., fingerprint_n]
-each entry: prev_hash == sha256(canonical(entry[i-1]))
-genesis: prev_hash == "genesis"
-tamper_detected: if any prev_hash mismatch → chain invalid`}</code></pre>
-                </div>
-              </section>
+              <p className="font-mono text-muted-foreground text-sm italic py-4 text-center border-y border-border/50">
+                Protocol internals are available to verified contributors only.
+              </p>
 
               {/* CONTRIBUTION STANDARDS */}
               <section className="relative rounded-xl border border-primary/20 bg-card/40 glass shadow-md p-6 sm:p-8">
@@ -168,11 +93,11 @@ tamper_detected: if any prev_hash mismatch → chain invalid`}</code></pre>
               </section>
 
               {/* AI CANNOT SIGN */}
-              <section className="relative rounded-xl border border-primary/50 bg-primary/10 shadow-lg shadow-primary/5 p-6 sm:p-8 text-center mt-8">
-                <h2 className="text-xl font-mono text-primary mb-3 font-bold tracking-wider">
+              <section className="relative rounded-xl border-2 border-red-500 bg-red-500/10 shadow-[0_0_40px_rgba(239,68,68,0.2)] p-10 sm:p-12 text-center mt-12 w-full">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-mono text-red-500 mb-6 font-black tracking-widest uppercase shadow-black drop-shadow-md">
                   AI CANNOT SIGN
                 </h2>
-                <p className="font-mono text-primary/90 text-sm sm:text-base max-w-2xl mx-auto">
+                <p className="font-mono text-red-400 text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed font-bold">
                   AI systems cannot produce valid etch fingerprints. 
                   A valid signature requires a human private key. 
                   No prompt, model, or agent can forge authorship.
