@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
-import { Loader2, ShieldCheck, Copy, Check, Terminal } from "lucide-react"
+import { Loader2, ShieldCheck, Copy, Check, Terminal, Link as LinkIcon } from "lucide-react" 
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { CursorGlow } from "@/components/cursor-glow"
@@ -12,6 +12,7 @@ export default function ChainPage() {
   const chainId = params.chain_id as string
   
   const [chainNodes, setChainNodes] = useState<any[]>([])
+  const [dependencies, setDependencies] = useState<{ depends_on: string[], used_by: string[] } | null>(null)
   const [loading, setLoading] = useState(true)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
@@ -34,10 +35,21 @@ export default function ChainPage() {
           setChainNodes(matchingNodes)
         }
         setLoading(false)
+
+        fetch(`https://etch-server-production.up.railway.app/anchors/${chainId}/dependencies`)
+          .then(res => res.json())
+          .then(depData => {
+            setDependencies(depData)
+          })
+          .catch(err => {
+            console.error("Failed to fetch dependencies", err)
+            setDependencies({ depends_on: [], used_by: [] })
+          })
       })
       .catch(err => {
         console.error(err)
         setLoading(false)
+        setDependencies({ depends_on: [], used_by: [] })
       })
   }, [chainId])
 
@@ -136,6 +148,51 @@ export default function ChainPage() {
                     <ShieldCheck className="h-5 w-5" /> VERIFY THIS CHAIN
                   </a>
                 </div>
+
+                {dependencies && (
+                  <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                      <h2 className="text-xl font-mono text-primary mb-4 border-b border-primary/20 pb-2">DEPENDS ON</h2>
+                      {dependencies.depends_on && dependencies.depends_on.length > 0 ? (
+                        <div className="space-y-3">
+                          {dependencies.depends_on.map((dep, idx) => (
+                            <a key={`dep-${idx}`} href={`/registry/${dep}`} className="flex items-center justify-between p-3 rounded-lg border border-primary/20 bg-card/40 hover:bg-primary/10 transition-colors group cursor-pointer">
+                              <span className="font-mono text-sm text-foreground/80 group-hover:text-primary transition-colors">
+                                {dep.substring(0, 16)}...
+                              </span>
+                              <LinkIcon className="h-4 w-4 text-primary/50 group-hover:text-primary transition-colors" />
+                            </a>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-4 rounded border border-border/50 border-dashed bg-card/20 text-center">
+                          <p className="text-muted-foreground font-mono text-sm">&gt; No dependencies registered</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-mono text-primary mb-4 border-b border-primary/20 pb-2">USED BY</h2>
+                      {dependencies.used_by && dependencies.used_by.length > 0 ? (
+                        <div className="space-y-3">
+                          {dependencies.used_by.map((dep, idx) => (
+                            <a key={`used-${idx}`} href={`/registry/${dep}`} className="flex items-center justify-between p-3 rounded-lg border border-primary/20 bg-card/40 hover:bg-primary/10 transition-colors group cursor-pointer">
+                              <span className="font-mono text-sm text-foreground/80 group-hover:text-primary transition-colors">
+                                {dep.substring(0, 16)}...
+                              </span>
+                              <LinkIcon className="h-4 w-4 text-primary/50 group-hover:text-primary transition-colors" />
+                            </a>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-4 rounded border border-border/50 border-dashed bg-card/20 text-center">
+                          <p className="text-muted-foreground font-mono text-sm">&gt; No dependents registered</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
               </>
             )}
             
@@ -146,5 +203,6 @@ export default function ChainPage() {
     </>
   )
 }
+
 
 
