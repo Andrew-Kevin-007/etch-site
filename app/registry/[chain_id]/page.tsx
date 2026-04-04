@@ -73,12 +73,15 @@ export default function ChainPage() {
                 <div className="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-primary/30 before:to-transparent">
                   {chainNodes.map((node, i) => (
                     <div key={i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-background bg-primary/20 text-primary font-mono text-xs font-bold shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 relative z-10">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-background bg-primary/20 text-primary font-mono text-xs font-bold shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 relative z-10" title="Latest Anchor Depth">
                         #{node.chain_depth || (i + 1)}
                       </div>
                       
-                      <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-5 rounded-xl border border-primary/20 bg-card/60 glass shadow-md">
-                        <div className="flex justify-between items-center mb-4 border-b border-primary/10 pb-3">
+                      <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-5 rounded-xl border border-primary/20 bg-card/60 glass shadow-md relative">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-background px-3 py-1 rounded-full border border-primary/30 text-[10px] text-primary/80 whitespace-nowrap font-mono">
+                          Showing latest anchor — chain depth: {node.chain_depth || (i + 1)}
+                        </div>
+                        <div className="flex justify-between items-center mb-4 mt-2 border-b border-primary/10 pb-3">
                           <span className="font-mono text-xs text-muted-foreground">
                             {node.created_at ? new Date(node.created_at).toLocaleString() : 'Unknown Time'}
                           </span>
@@ -124,6 +127,15 @@ export default function ChainPage() {
                     )}
                   </button>
                 </div>
+                
+                <div className="mt-8 flex justify-center">
+                  <a
+                    href={`/verify?chain_id=${latestNode.chain_id}&head_hash=${latestNode.head_hash}`}
+                    className="flex items-center justify-center gap-2 px-8 py-3 rounded-md border border-primary/50 bg-primary/20 text-primary font-mono text-sm font-bold hover:bg-primary hover:text-primary-foreground transition-all duration-300 shadow-[0_0_15px_rgba(34,197,94,0.2)] hover:shadow-[0_0_25px_rgba(34,197,94,0.4)]"
+                  >
+                    <ShieldCheck className="h-5 w-5" /> VERIFY THIS CHAIN
+                  </a>
+                </div>
               </>
             )}
             
@@ -134,3 +146,5 @@ export default function ChainPage() {
     </>
   )
 }
+
+

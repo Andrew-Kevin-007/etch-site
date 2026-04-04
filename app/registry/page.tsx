@@ -134,7 +134,21 @@ export default function RegistryPage() {
                           )}
                         </button>
                       </div>
-                      <p><span className="text-foreground/60">Chain Depth:</span> {m.chain_depth || 1}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-foreground/60">Chain Depth:</span> 
+                        <span>{m.chain_depth || 1}</span>
+                        <button 
+                          onClick={() => copyToClipboard(m.chain_id, `depth-copy-${m.id || i}`)}
+                          className="flex items-center hover:text-primary transition-colors group/copy relative outline-none"
+                          title="Copy full chain ID"
+                        >
+                          {copiedId === `depth-copy-${m.id || i}` ? (
+                            <span className="text-primary flex items-center"><Check className="h-3 w-3" /></span>
+                          ) : (
+                            <Copy className="h-3 w-3 opacity-50 group-hover/copy:opacity-100 transition-opacity" />
+                          )}
+                        </button>
+                      </div>
                       <p><span className="text-foreground/60">Last Signed:</span> {m.created_at ? new Date(m.created_at).toLocaleDateString() : 'Unknown'}</p>
                     </div>
                     <Link
