@@ -10,22 +10,24 @@ import { Terminal, Shield } from "lucide-react"
 function VerifyTerminal() {
   const searchParams = useSearchParams()
   const initialChainId = searchParams.get("chain_id") || ""
+  const initialHeadHash = searchParams.get("head_hash") || ""
 
-  const [input, setInput] = useState(initialChainId)
+  const [chainIdInput, setChainIdInput] = useState(initialChainId)
+  const [headHashInput, setHeadHashInput] = useState(initialHeadHash)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const handleVerifyRequest = async (inputValue: string) => {
-    if (!inputValue.trim()) return
+  const handleVerifyRequest = async (chainIdVal: string, headHashVal: string) => {
+    if (!chainIdVal.trim() || !headHashVal.trim()) return
 
     setLoading(true)
     setError(null)
     setResult(null)
 
     try {
-      const payload = { chain_id: inputValue, head_hash: "" }
-      
+      const payload = { chain_id: chainIdVal, head_hash: headHashVal }
+
       const res = await fetch("https://etch-server-production.up.railway.app/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -48,14 +50,14 @@ function VerifyTerminal() {
 
   const handleVerify = (e: React.FormEvent) => {
     e.preventDefault()
-    handleVerifyRequest(input)
+    handleVerifyRequest(chainIdInput, headHashInput)
   }
 
   useEffect(() => {
-    if (initialChainId) {
-      handleVerifyRequest(initialChainId)
+    if (initialChainId && initialHeadHash) {
+      handleVerifyRequest(initialChainId, initialHeadHash)
     }
-  }, [initialChainId])
+  }, [initialChainId, initialHeadHash])
 
   return (
     <>
@@ -81,20 +83,31 @@ function VerifyTerminal() {
                   <p className="text-muted-foreground mt-2">Enter a file path or chain_id to cryptographically verify human authorship.</p>
                 </div>
 
-                <form onSubmit={handleVerify} className="relative mb-8">
+                <form onSubmit={handleVerify} className="relative mb-8 space-y-4">
                   <div className="flex items-center gap-3">
                     <span className="text-primary font-mono font-bold">$</span>
                     <input
                       type="text"
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      placeholder="chain_id / file path"
+                      value={chainIdInput}
+                      onChange={(e) => setChainIdInput(e.target.value)}
+                      placeholder="chain_id / file path (SHA-256)"
+                      className="flex-1 bg-transparent border-0 border-b border-primary/30 rounded-none px-2 py-2 font-mono text-foreground focus:border-primary focus:ring-0 outline-none placeholder:text-muted-foreground/50 transition-colors"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-primary font-mono font-bold">&gt;</span>
+                    <input
+                      type="text"
+                      value={headHashInput}
+                      onChange={(e) => setHeadHashInput(e.target.value)}
+                      placeholder="head_hash (chain terminal hash)"
                       className="flex-1 bg-transparent border-0 border-b border-primary/30 rounded-none px-2 py-2 font-mono text-foreground focus:border-primary focus:ring-0 outline-none placeholder:text-muted-foreground/50 transition-colors"
                       disabled={loading}
                     />
                     <button
                       type="submit"
-                      disabled={loading || !input.trim()}
+                      disabled={loading || !chainIdInput.trim() || !headHashInput.trim()}
                       className="px-6 py-2 rounded border border-primary/50 text-primary font-mono text-sm bg-primary/10 hover:bg-primary hover:text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all uppercase tracking-widest"
                     >
                       VERIFY
@@ -106,7 +119,7 @@ function VerifyTerminal() {
                   {loading && (
                     <div className="text-primary/70 animate-pulse">
                       &gt; establishing secure connection...<br/>
-                      &gt; fetching chain sequence for [{input}]...<br/>
+                      &gt; fetching chain sequence for [{chainIdInput}]...<br/>   
                       <span className="inline-block mt-2">
                         <span className="animate-[ping_1.5s_infinite] inline-block w-2 h-4 bg-primary align-middle mr-2"></span>
                         verifying cryptographic signatures...
@@ -122,7 +135,7 @@ function VerifyTerminal() {
 
                   {error && !loading && (
                     <div className="text-destructive">
-                      &gt; verifying chain: [{input}]<br/>
+                      &gt; verifying chain: [{chainIdInput}]<br/>
                       &gt; status: FAILED<br/>
                       &gt; error: {error}
                     </div>
@@ -130,10 +143,13 @@ function VerifyTerminal() {
 
                   {result && !loading && (
                     <div className="animate-fade-in text-primary/90 space-y-1">
-                      <div>&gt; verifying chain: <span className="text-foreground">{input}</span></div>
+                      <div>&gt; verifying chain: <span className="text-foreground">{chainIdInput}</span></div>
                       <div>
-                        &gt; status: <span className={result.is_verified ? "text-primary font-bold" : "text-destructive font-bold"}>
-                          {result.is_verified ? "VERIFIED" : "FAILED"}
+                        &gt; head hash: <span className="text-foreground">{headHashInput}</span>
+                      </div>
+                      <div>
+                        &gt; status: <span className={result.valid ? "text-primary font-bold" : "text-destructive font-bold"}>
+                          {result.valid ? "VERIFIED" : "FAILED"}
                         </span>
                       </div>
                       <div>&gt; stored hash: <span className="text-foreground">{result.stored_head_hash || 'N/A'}</span></div>
@@ -174,3 +190,4 @@ export default function VerifyPage() {
     </Suspense>
   )
 }
+
