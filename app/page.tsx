@@ -8,12 +8,13 @@ import { useState, useEffect, useRef } from "react"
 import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate, AnimatePresence, Variants } from "framer-motion"
 
 // ============================================
-// SPOTLIGHT EFFECT - Cursor following glow
+// CURSOR SPOTLIGHT - Large radial gradient following cursor
 // ============================================
 function Spotlight() {
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
+  // Smooth spring physics for lag effect
   const springConfig = { damping: 30, stiffness: 180, mass: 0.5 }
   const springX = useSpring(mouseX, springConfig)
   const springY = useSpring(mouseY, springConfig)
@@ -29,122 +30,220 @@ function Spotlight() {
 
   return (
     <motion.div
-      className="absolute inset-0 pointer-events-none overflow-hidden"
+      className="fixed inset-0 pointer-events-none z-50"
       style={{
-        background: useMotionTemplate`radial-gradient(800px circle at ${springX}px ${springY}px, rgba(0, 200, 150, 0.06), transparent 40%)`,
+        background: useMotionTemplate`radial-gradient(600px circle at ${springX}px ${springY}px, rgba(0, 200, 150, 0.03), transparent 40%)`,
       }}
     />
   )
 }
 
 // ============================================
-// ORGANIC FLOATING DOTS - Sparse, drifting particles
+// 3D TILT CARD - Perspective transform on mouse move
 // ============================================
-function FloatingDots() {
-  const [dots, setDots] = useState<Array<{
-    id: number
-    x: number
-    y: number
-    vx: number
-    vy: number
-    size: number
-    opacity: number
-    phase: number
-  }>>([])
+function TiltCard({
+  children,
+  className = ""
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
 
-  useEffect(() => {
-    const dotCount = 40
-    const newDots = Array.from({ length: dotCount }, (_, i) => ({
-      id: i,
-      x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-      y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: (Math.random() - 0.5) * 0.3,
-      size: Math.random() * 3 + 1,
-      opacity: Math.random() * 0.4 + 0.1,
-      phase: Math.random() * Math.PI * 2,
-    }))
-    setDots(newDots)
-  }, [])
+  const springConfig = { damping: 20, stiffness: 150 }
+  const springX = useSpring(mouseX, springConfig)
+  const springY = useSpring(mouseY, springConfig)
 
-  useEffect(() => {
-    const animate = () => {
-      setDots(prevDots => prevDots.map(dot => {
-        let newX = dot.x + dot.vx
-        let newY = dot.y + dot.vy
-        let newVx = dot.vx
-        let newVy = dot.vy
+  const rotateX = useTransform(springY, [-0.5, 0.5], ["8deg", "-8deg"])
+  const rotateY = useTransform(springX, [-0.5, 0.5], ["-8deg", "8deg"])
 
-        // Bounce off edges
-        if (typeof window !== 'undefined') {
-          if (newX <= 0 || newX >= window.innerWidth) newVx = -newVx
-          if (newY <= 0 || newY >= window.innerHeight) newVy = -newVy
-        }
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = ref.current?.getBoundingClientRect()
+    if (!rect) return
 
-        // Subtle organic movement
-        const time = Date.now() * 0.001
-        newVx += Math.sin(dot.phase + time) * 0.002
-        newVy += Math.cos(dot.phase + time) * 0.002
+    const width = rect.width
+    const height = rect.height
+    const xPct = (e.clientX - rect.left) / width - 0.5
+    const yPct = (e.clientY - rect.top) / height - 0.5
 
-        // Damping
-        newVx *= 0.999
-        newVy *= 0.999
+    mouseX.set(xPct)
+    mouseY.set(yPct)
+  }
 
-        return {
-          ...dot,
-          x: newX,
-          y: newY,
-          vx: newVx,
-          vy: newVy,
-        }
-      }))
-    }
-
-    const interval = setInterval(animate, 16)
-    return () => clearInterval(interval)
-  }, [])
+  const handleMouseLeave = () => {
+    mouseX.set(0)
+    mouseY.set(0)
+  }
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {dots.map(dot => (
-        <motion.div
-          key={dot.id}
-          className="absolute rounded-full bg-[#00c896]"
-          style={{
-            left: dot.x,
-            top: dot.y,
-            width: dot.size,
-            height: dot.size,
-            opacity: dot.opacity,
-          }}
-          animate={{
-            opacity: [dot.opacity, dot.opacity * 0.5, dot.opacity],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 3 + dot.phase,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </div>
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        perspective: "1000px",
+        transformStyle: "preserve-3d",
+        rotateX,
+        rotateY,
+      }}
+      className={className}
+    >
+      <motion.div
+        style={{ transform: "translateZ(30px)" }}
+        className="relative z-10"
+      >
+        {children}
+      </motion.div>
+    </motion.div>
   )
 }
 
 // ============================================
-// SCROLL REVEAL ANIMATION - Viewport triggered
+// MAGNETIC BUTTON - Pulls toward cursor when nearby
 // ============================================
-function RevealOnScroll({
+function MagneticButton({
+  children,
+  className = ""
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+
+  const springConfig = { damping: 30, stiffness: 200 }
+  const springX = useSpring(x, springConfig)
+  const springY = useSpring(y, springConfig)
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!ref.current) return
+
+      const rect = ref.current.getBoundingClientRect()
+      const centerX = rect.left + rect.width / 2
+      const centerY = rect.top + rect.height / 2
+      const deltaX = e.clientX - centerX
+      const deltaY = e.clientY - centerY
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+
+      const magneticDistance = 100
+      if (distance < magneticDistance) {
+        const strength = (1 - distance / magneticDistance) * 0.4
+        x.set(deltaX * strength)
+        y.set(deltaY * strength)
+      } else {
+        x.set(0)
+        y.set(0)
+      }
+    }
+
+    window.addEventListener("mousemove", handleMouseMove)
+    return () => window.removeEventListener("mousemove", handleMouseMove)
+  }, [])
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ x: springX, y: springY }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+// ============================================
+// PARALLAX TEXT - Moves at different scroll speeds
+// ============================================
+function ParallaxText({
+  children,
+  speed = 0.5,
+  className = ""
+}: {
+  children: React.ReactNode
+  speed?: number
+  className?: string
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  })
+
+  const y = useTransform(scrollYProgress, [0, 1], [0, -50 * speed])
+
+  return (
+    <motion.div ref={ref} style={{ y }} className={className}>
+      {children}
+    </motion.div>
+  )
+}
+
+// ============================================
+// STAGGERED WORD REVEAL - Each word animates in
+// ============================================
+function StaggeredHeadline() {
+  const words = ["Code", "changes.", "Authorship", "shouldn't."]
+
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+      },
+    },
+  }
+
+  const wordVariants: Variants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.25, 0.25, 0.25, 0.75],
+      },
+    },
+  }
+
+  return (
+    <motion.h1
+      className="text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight leading-[1.05]"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <div className="overflow-hidden">
+        <motion.span variants={wordVariants}>Code</motion.span>{" "}
+        <motion.span variants={wordVariants}>changes.</motion.span>
+      </div>
+      <div className="overflow-hidden">
+        <motion.span variants={wordVariants} className="text-[#00c896]">
+          Authorship
+        </motion.span>{" "}
+        <motion.span variants={wordVariants} className="text-[#00c896]">
+          shouldn&apos;t.
+        </motion.span>
+      </div>
+    </motion.h1>
+  )
+}
+
+// ============================================
+// SCROLL REVEAL SECTION - Spring physics on viewport entry
+// ============================================
+function RevealSection({
   children,
   delay = 0,
-  className = "",
-  direction = "up" as const
+  className = ""
 }: {
   children: React.ReactNode
   delay?: number
   className?: string
-  direction?: "up" | "down" | "left" | "right"
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
@@ -164,83 +263,20 @@ function RevealOnScroll({
     return () => observer.disconnect()
   }, [])
 
-  const variants: Variants = {
-    hidden: {
-      opacity: 0,
-      y: direction === "up" ? 40 : direction === "down" ? -40 : 0,
-      x: direction === "left" ? 40 : direction === "right" ? -40 : 0,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      x: 0,
-      transition: {
-        duration: 0.8,
-        delay,
-        ease: [0.25, 0.25, 0.25, 0.75],
-      },
-    },
-  }
-
   return (
     <motion.div
       ref={ref}
-      initial="hidden"
-      animate={isVisible ? "visible" : "hidden"}
-      variants={variants}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+      transition={{
+        duration: 0.8,
+        delay,
+        ease: [0.25, 0.25, 0.25, 0.75],
+      }}
       className={className}
     >
       {children}
     </motion.div>
-  )
-}
-
-// ============================================
-// SPLIT TEXT ANIMATION - Hero text reveal
-// ============================================
-function SplitTextHero() {
-  return (
-    <div className="overflow-hidden">
-      <motion.h1
-        className="text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight leading-[1.05]"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: {},
-          visible: {
-            transition: {
-              staggerChildren: 0.2,
-            },
-          },
-        }}
-      >
-        <motion.div
-          variants={{
-            hidden: { opacity: 0, x: -100 },
-            visible: {
-              opacity: 1,
-              x: 0,
-              transition: { duration: 0.8, ease: [0.25, 0.25, 0.25, 0.75] },
-            },
-          }}
-        >
-          Code changes.
-        </motion.div>
-        <motion.div
-          variants={{
-            hidden: { opacity: 0, x: 100 },
-            visible: {
-              opacity: 1,
-              x: 0,
-              transition: { duration: 0.8, ease: [0.25, 0.25, 0.25, 0.75] },
-            },
-          }}
-          className="text-[#00c896]"
-        >
-          Authorship shouldn&apos;t.
-        </motion.div>
-      </motion.h1>
-    </div>
   )
 }
 
@@ -314,6 +350,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-[#0a0a0a] font-sans selection:bg-[#00c896]/20">
+      {/* Global cursor spotlight */}
+      <Spotlight />
+
       <Header />
 
       {/* HERO SECTION */}
@@ -321,12 +360,6 @@ export default function Home() {
         ref={heroRef}
         className="min-h-screen flex flex-col justify-center items-center relative overflow-hidden pt-20"
       >
-        {/* Spotlight effect */}
-        <Spotlight />
-
-        {/* Organic floating dots */}
-        <FloatingDots />
-
         {/* Static ambient gradients */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 -left-1/4 w-[800px] h-[800px] bg-gradient-to-br from-[#00c896]/10 to-transparent rounded-full blur-3xl" />
@@ -348,54 +381,63 @@ export default function Home() {
             Open Source · v0.1.0
           </motion.div>
 
-          {/* Split text hero animation */}
-          <SplitTextHero />
+          {/* Parallax + Staggered headline */}
+          <ParallaxText speed={0.5}>
+            <StaggeredHeadline />
+          </ParallaxText>
 
-          {/* Subheadline */}
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-            className="text-xl md:text-2xl text-[#666] max-w-3xl mx-auto leading-relaxed"
-          >
-            etch is a cryptographic protocol that preserves human authorship in software.
-            Built for developers. Trusted by open source.
-          </motion.p>
+          {/* Subheadline with parallax */}
+          <ParallaxText speed={0.3}>
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+              className="text-xl md:text-2xl text-[#666] max-w-3xl mx-auto leading-relaxed"
+            >
+              etch is a cryptographic protocol that preserves human authorship in software.
+              Built for developers. Trusted by open source.
+            </motion.p>
+          </ParallaxText>
 
-          {/* CTAs */}
+          {/* Magnetic CTA buttons */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
           >
-            <Link
-              href="/registry"
-              className="group inline-flex h-12 items-center justify-center px-8 rounded-full bg-[#0a0a0a] text-white font-medium hover:bg-[#0a0a0a]/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-            >
-              Install etch
-              <motion.span
-                className="ml-2"
-                initial={{ x: 0 }}
-                whileHover={{ x: 4 }}
-                transition={{ duration: 0.2 }}
+            <MagneticButton>
+              <Link
+                href="/registry"
+                className="group inline-flex h-12 items-center justify-center px-8 rounded-full bg-[#0a0a0a] text-white font-medium hover:bg-[#0a0a0a]/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
-                →
-              </motion.span>
-            </Link>
-            <Link
-              href="/registry"
-              className="inline-flex h-12 items-center justify-center px-8 rounded-full border border-[#0a0a0a]/20 text-[#0a0a0a] font-medium hover:bg-[#0a0a0a]/5 transition-all hover:-translate-y-0.5"
-            >
-              View Registry
-            </Link>
+                Install etch
+                <motion.span
+                  className="ml-2"
+                  initial={{ x: 0 }}
+                  whileHover={{ x: 4 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  →
+                </motion.span>
+              </Link>
+            </MagneticButton>
+
+            <MagneticButton>
+              <Link
+                href="/registry"
+                className="inline-flex h-12 items-center justify-center px-8 rounded-full border border-[#0a0a0a]/20 text-[#0a0a0a] font-medium hover:bg-[#0a0a0a]/5 transition-all hover:-translate-y-0.5"
+              >
+                View Registry
+              </Link>
+            </MagneticButton>
           </motion.div>
 
           {/* Install snippet */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
             className="pt-4"
           >
             <div className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#0a0a0a] text-white font-mono text-sm shadow-xl">
@@ -444,7 +486,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left: Large text */}
-            <RevealOnScroll>
+            <RevealSection>
               <div className="space-y-6">
                 <h2 className="text-6xl md:text-7xl font-bold tracking-tight">
                   <span className="text-[#0a0a0a] line-through decoration-[#00c896]/40 decoration-2">
@@ -454,39 +496,45 @@ export default function Home() {
                   <span className="text-[#666]">It cannot take responsibility.</span>
                 </h2>
               </div>
-            </RevealOnScroll>
+            </RevealSection>
 
-            {/* Right: Stat cards */}
+            {/* Right: 3D Tilt cards */}
             <div className="grid gap-6">
-              <RevealOnScroll delay={0.1}>
-                <div className="group p-8 rounded-2xl bg-[#fafafa] border border-[#0a0a0a]/5 hover:border-[#00c896]/30 transition-all hover:shadow-lg hover:shadow-[#00c896]/5">
-                  <Shield className="h-8 w-8 text-[#00c896] mb-4" />
-                  <h3 className="text-xl font-semibold text-[#0a0a0a] mb-2">Ed25519</h3>
-                  <p className="text-[#666] text-sm leading-relaxed">
-                    Cryptographic keypairs generated locally. Your private key never leaves your machine.
-                  </p>
-                </div>
-              </RevealOnScroll>
+              <RevealSection delay={0.1}>
+                <TiltCard>
+                  <div className="group p-8 rounded-2xl bg-[#fafafa] border border-[#0a0a0a]/5 hover:border-[#00c896]/30 transition-all hover:shadow-lg hover:shadow-[#00c896]/5">
+                    <Shield className="h-8 w-8 text-[#00c896] mb-4" />
+                    <h3 className="text-xl font-semibold text-[#0a0a0a] mb-2">Ed25519</h3>
+                    <p className="text-[#666] text-sm leading-relaxed">
+                      Cryptographic keypairs generated locally. Your private key never leaves your machine.
+                    </p>
+                  </div>
+                </TiltCard>
+              </RevealSection>
 
-              <RevealOnScroll delay={0.2}>
-                <div className="group p-8 rounded-2xl bg-[#fafafa] border border-[#0a0a0a]/5 hover:border-[#00c896]/30 transition-all hover:shadow-lg hover:shadow-[#00c896]/5">
-                  <Database className="h-8 w-8 text-[#00c896] mb-4" />
-                  <h3 className="text-xl font-semibold text-[#0a0a0a] mb-2">Append-Only</h3>
-                  <p className="text-[#666] text-sm leading-relaxed">
-                    Signatures linked in an immutable chain. History that cannot be rewritten or forged.
-                  </p>
-                </div>
-              </RevealOnScroll>
+              <RevealSection delay={0.2}>
+                <TiltCard>
+                  <div className="group p-8 rounded-2xl bg-[#fafafa] border border-[#0a0a0a]/5 hover:border-[#00c896]/30 transition-all hover:shadow-lg hover:shadow-[#00c896]/5">
+                    <Database className="h-8 w-8 text-[#00c896] mb-4" />
+                    <h3 className="text-xl font-semibold text-[#0a0a0a] mb-2">Append-Only</h3>
+                    <p className="text-[#666] text-sm leading-relaxed">
+                      Signatures linked in an immutable chain. History that cannot be rewritten or forged.
+                    </p>
+                  </div>
+                </TiltCard>
+              </RevealSection>
 
-              <RevealOnScroll delay={0.3}>
-                <div className="group p-8 rounded-2xl bg-[#fafafa] border border-[#0a0a0a]/5 hover:border-[#00c896]/30 transition-all hover:shadow-lg hover:shadow-[#00c896]/5">
-                  <Lock className="h-8 w-8 text-[#00c896] mb-4" />
-                  <h3 className="text-xl font-semibold text-[#0a0a0a] mb-2">Open Source</h3>
-                  <p className="text-[#666] text-sm leading-relaxed">
-                    Transparent, auditable, and built by the community. Trust through verification.
-                  </p>
-                </div>
-              </RevealOnScroll>
+              <RevealSection delay={0.3}>
+                <TiltCard>
+                  <div className="group p-8 rounded-2xl bg-[#fafafa] border border-[#0a0a0a]/5 hover:border-[#00c896]/30 transition-all hover:shadow-lg hover:shadow-[#00c896]/5">
+                    <Lock className="h-8 w-8 text-[#00c896] mb-4" />
+                    <h3 className="text-xl font-semibold text-[#0a0a0a] mb-2">Open Source</h3>
+                    <p className="text-[#666] text-sm leading-relaxed">
+                      Transparent, auditable, and built by the community. Trust through verification.
+                    </p>
+                  </div>
+                </TiltCard>
+              </RevealSection>
             </div>
           </div>
         </div>
@@ -495,59 +543,65 @@ export default function Home() {
       {/* HOW IT WORKS */}
       <section className="py-32 bg-[#f5f5f5]">
         <div className="max-w-7xl mx-auto px-6">
-          <RevealOnScroll>
+          <RevealSection>
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-[#0a0a0a]">
                 Three commands. Proven authorship.
               </h2>
             </div>
-          </RevealOnScroll>
+          </RevealSection>
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Step 1 */}
-            <RevealOnScroll delay={0.1}>
-              <div className="group p-8 rounded-2xl bg-white border border-[#0a0a0a]/5 hover:border-[#00c896]/30 transition-all hover:shadow-xl hover:shadow-[#00c896]/5 hover:-translate-y-1">
-                <div className="text-6xl font-bold text-[#00c896]/20 mb-4">01</div>
-                <h3 className="text-2xl font-semibold text-[#0a0a0a] mb-2">etch init</h3>
-                <p className="text-[#666] text-sm mb-6 leading-relaxed">
-                  Generate your unique Ed25519 keypair locally on your machine.
-                </p>
-                <div className="p-4 rounded-xl bg-[#0a0a0a] font-mono text-sm">
-                  <div className="text-white"><span className="text-[#666]">$</span> etch init</div>
-                  <div className="text-[#666] mt-2 text-xs">&gt; Identity created</div>
+            <RevealSection delay={0.1}>
+              <TiltCard>
+                <div className="group p-8 rounded-2xl bg-white border border-[#0a0a0a]/5 hover:border-[#00c896]/30 transition-all hover:shadow-xl hover:shadow-[#00c896]/5 hover:-translate-y-1">
+                  <div className="text-6xl font-bold text-[#00c896]/20 mb-4">01</div>
+                  <h3 className="text-2xl font-semibold text-[#0a0a0a] mb-2">etch init</h3>
+                  <p className="text-[#666] text-sm mb-6 leading-relaxed">
+                    Generate your unique Ed25519 keypair locally on your machine.
+                  </p>
+                  <div className="p-4 rounded-xl bg-[#0a0a0a] font-mono text-sm">
+                    <div className="text-white"><span className="text-[#666]">$</span> etch init</div>
+                    <div className="text-[#666] mt-2 text-xs">&gt; Identity created</div>
+                  </div>
                 </div>
-              </div>
-            </RevealOnScroll>
+              </TiltCard>
+            </RevealSection>
 
             {/* Step 2 */}
-            <RevealOnScroll delay={0.2}>
-              <div className="group p-8 rounded-2xl bg-white border border-[#0a0a0a]/5 hover:border-[#00c896]/30 transition-all hover:shadow-xl hover:shadow-[#00c896]/5 hover:-translate-y-1">
-                <div className="text-6xl font-bold text-[#00c896]/20 mb-4">02</div>
-                <h3 className="text-2xl font-semibold text-[#0a0a0a] mb-2">etch sign</h3>
-                <p className="text-[#666] text-sm mb-6 leading-relaxed">
-                  Cryptographically anchor your file state to your identity.
-                </p>
-                <div className="p-4 rounded-xl bg-[#0a0a0a] font-mono text-sm">
-                  <div className="text-white"><span className="text-[#666]">$</span> etch sign myfile.rs</div>
-                  <div className="text-[#00c896] mt-2 text-xs">&gt; Signature anchored ✓</div>
+            <RevealSection delay={0.2}>
+              <TiltCard>
+                <div className="group p-8 rounded-2xl bg-white border border-[#0a0a0a]/5 hover:border-[#00c896]/30 transition-all hover:shadow-xl hover:shadow-[#00c896]/5 hover:-translate-y-1">
+                  <div className="text-6xl font-bold text-[#00c896]/20 mb-4">02</div>
+                  <h3 className="text-2xl font-semibold text-[#0a0a0a] mb-2">etch sign</h3>
+                  <p className="text-[#666] text-sm mb-6 leading-relaxed">
+                    Cryptographically anchor your file state to your identity.
+                  </p>
+                  <div className="p-4 rounded-xl bg-[#0a0a0a] font-mono text-sm">
+                    <div className="text-white"><span className="text-[#666]">$</span> etch sign myfile.rs</div>
+                    <div className="text-[#00c896] mt-2 text-xs">&gt; Signature anchored ✓</div>
+                  </div>
                 </div>
-              </div>
-            </RevealOnScroll>
+              </TiltCard>
+            </RevealSection>
 
             {/* Step 3 */}
-            <RevealOnScroll delay={0.3}>
-              <div className="group p-8 rounded-2xl bg-white border border-[#0a0a0a]/5 hover:border-[#00c896]/30 transition-all hover:shadow-xl hover:shadow-[#00c896]/5 hover:-translate-y-1">
-                <div className="text-6xl font-bold text-[#00c896]/20 mb-4">03</div>
-                <h3 className="text-2xl font-semibold text-[#0a0a0a] mb-2">etch verify</h3>
-                <p className="text-[#666] text-sm mb-6 leading-relaxed">
-                  Verify provenance against the immutable registry anytime.
-                </p>
-                <div className="p-4 rounded-xl bg-[#0a0a0a] font-mono text-sm">
-                  <div className="text-white"><span className="text-[#666]">$</span> etch verify myfile.rs</div>
-                  <div className="text-[#00c896] mt-2 text-xs">&gt; Verified · Chain: 6 ✓</div>
+            <RevealSection delay={0.3}>
+              <TiltCard>
+                <div className="group p-8 rounded-2xl bg-white border border-[#0a0a0a]/5 hover:border-[#00c896]/30 transition-all hover:shadow-xl hover:shadow-[#00c896]/5 hover:-translate-y-1">
+                  <div className="text-6xl font-bold text-[#00c896]/20 mb-4">03</div>
+                  <h3 className="text-2xl font-semibold text-[#0a0a0a] mb-2">etch verify</h3>
+                  <p className="text-[#666] text-sm mb-6 leading-relaxed">
+                    Verify provenance against the immutable registry anytime.
+                  </p>
+                  <div className="p-4 rounded-xl bg-[#0a0a0a] font-mono text-sm">
+                    <div className="text-white"><span className="text-[#666]">$</span> etch verify myfile.rs</div>
+                    <div className="text-[#00c896] mt-2 text-xs">&gt; Verified · Chain: 6 ✓</div>
+                  </div>
                 </div>
-              </div>
-            </RevealOnScroll>
+              </TiltCard>
+            </RevealSection>
           </div>
         </div>
       </section>
@@ -555,22 +609,22 @@ export default function Home() {
       {/* PRINCIPLE SECTION - Dark with wave entry */}
       <section className="py-32 bg-[#0a0a0a] relative">
         <div className="max-w-5xl mx-auto px-6 text-center space-y-6">
-          <RevealOnScroll>
+          <RevealSection>
             <h2 className="text-5xl md:text-7xl font-bold tracking-tight text-white">
               AI can carry code.
             </h2>
-          </RevealOnScroll>
-          <RevealOnScroll delay={0.15}>
+          </RevealSection>
+          <RevealSection delay={0.15}>
             <h2 className="text-5xl md:text-7xl font-bold tracking-tight text-[#00c896]">
               Only humans can sign it.
             </h2>
-          </RevealOnScroll>
-          <RevealOnScroll delay={0.3}>
+          </RevealSection>
+          <RevealSection delay={0.3}>
             <p className="text-xl text-[#666] max-w-3xl mx-auto leading-relaxed pt-4">
               etch ensures developers remain visible, accountable, and credited —
               even as AI transforms everything around them.
             </p>
-          </RevealOnScroll>
+          </RevealSection>
         </div>
       </section>
 
