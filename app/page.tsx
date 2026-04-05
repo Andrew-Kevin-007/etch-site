@@ -18,6 +18,7 @@ function CursorParticles() {
     vx: number
     vy: number
     rotation: number
+    dr: number
     opacity: number
     color: string
   }>>([])
@@ -26,14 +27,14 @@ function CursorParticles() {
   const colors = ["#00c896", "#94a3b8", "#64748b", "#00b4d8"]
 
   const spawnParticles = useCallback((x: number, y: number) => {
-    const count = 2 + Math.floor(Math.random() * 2) // 2-3 particles
+    const count = 2 + Math.floor(Math.random() * 2) // 2-3 particles       
 
     for (let i = 0; i < count; i++) {
       const offsetX = (Math.random() - 0.5) * 20 // ±10px
       const offsetY = (Math.random() - 0.5) * 20 // ±10px
       const vx = (Math.random() - 0.5) * 3 // ±1.5
-      const vy = -2 - Math.random() * 2 // -2 to -4
-      const color = colors[Math.floor(Math.random() * colors.length)]
+      const vy = -4 + Math.random() * 2 // -2 to -4
+      const color = colors[Math.floor(Math.random() * colors.length)]      
 
       particlesRef.current.push({
         x: x + offsetX,
@@ -41,6 +42,7 @@ function CursorParticles() {
         vx,
         vy,
         rotation: Math.random() * 360,
+        dr: 2 + Math.random() * 3, // + random 2-5 degrees
         opacity: 0.7,
         color,
       })
@@ -53,6 +55,8 @@ function CursorParticles() {
 
     const ctx = canvas.getContext("2d")
     if (!ctx) return
+
+    let animationFrameId: number;
 
     const resize = () => {
       canvas.width = window.innerWidth
@@ -80,8 +84,8 @@ function CursorParticles() {
         p.x += p.vx
         p.y += p.vy
         p.vy += 0.15 // gravity
-        p.rotation += 2 // rotation increases each frame
-        p.opacity -= 0.7 / 1200 // fade over 1200ms (at ~60fps = ~0.00058 per frame)
+        p.rotation += p.dr // random 2-5 degrees
+        p.opacity -= 0.008 // fade 0.008 per frame
 
         if (p.opacity <= 0) return false
 
@@ -97,7 +101,7 @@ function CursorParticles() {
         return true
       })
 
-      requestAnimationFrame(animate)
+      animationFrameId = requestAnimationFrame(animate)
     }
 
     animate()
@@ -105,6 +109,7 @@ function CursorParticles() {
     return () => {
       window.removeEventListener("resize", resize)
       window.removeEventListener("mousemove", handleMouseMove)
+      cancelAnimationFrame(animationFrameId)
     }
   }, [spawnParticles])
 
