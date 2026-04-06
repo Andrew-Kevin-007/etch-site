@@ -14,6 +14,10 @@ interface AntigravityProps {
   lerpSpeed?: number;
   color?: string;
   colorGradient?: readonly string[];
+  internalGradientStrength?: number;
+  rimStrength?: number;
+  particleOpacity?: number;
+  additiveBlend?: boolean;
   autoAnimate?: boolean;
   particleVariance?: number;
   rotationSpeed?: number;
@@ -62,6 +66,57 @@ const interpolateGradientColor = (stops: THREE.Color[], t: number) => {
   return stops[segmentIndex].clone().lerp(stops[segmentIndex + 1], localT);
 };
 
+const PARTICLE_VERTEX_SHADER = `
+  varying vec3 vInstanceColor;
+  varying vec3 vLocalPos;
+  varying vec3 vNormalDir;
+  varying vec3 vViewDir;
+
+  void main() {
+    vInstanceColor = instanceColor;
+    vLocalPos = position;
+
+    vec4 worldPosition = modelMatrix * instanceMatrix * vec4(position, 1.0);
+    mat3 worldNormalMatrix = mat3(modelMatrix * instanceMatrix);
+
+    vNormalDir = normalize(worldNormalMatrix * normal);
+    vViewDir = normalize(cameraPosition - worldPosition.xyz);
+
+    gl_Position = projectionMatrix * viewMatrix * worldPosition;
+  }
+`;
+
+const PARTICLE_FRAGMENT_SHADER = `
+  uniform float uTime;
+  uniform float uGradientStrength;
+  uniform float uRimStrength;
+  uniform float uOpacity;
+
+  varying vec3 vInstanceColor;
+  varying vec3 vLocalPos;
+  varying vec3 vNormalDir;
+  varying vec3 vViewDir;
+
+  void main() {
+    float heightGradient = clamp(vLocalPos.y * 1.8 + 0.5, 0.0, 1.0);
+    float depthGradient = clamp(1.0 - abs(vLocalPos.z) * 2.2, 0.0, 1.0);
+    float innerGlow = pow(clamp(1.0 - length(vLocalPos.xy) * 2.4, 0.0, 1.0), 1.35);
+
+    float shimmer = 0.92 + 0.08 * sin(uTime * 1.8 + vLocalPos.x * 8.0 + vLocalPos.y * 6.0);
+    float fresnel = pow(1.0 - max(dot(normalize(vNormalDir), normalize(vViewDir)), 0.0), 2.2);
+
+    float shadedBody = mix(0.58, 1.22, heightGradient) * mix(0.82, 1.18, depthGradient);
+    vec3 baseColor = vInstanceColor * shadedBody * shimmer;
+    vec3 internalGradient = vInstanceColor * innerGlow * uGradientStrength;
+    vec3 rimGlow = vInstanceColor * fresnel * uRimStrength;
+
+    vec3 finalColor = baseColor + internalGradient + rimGlow;
+    float alpha = clamp((0.32 + innerGlow * 0.45 + fresnel * 0.25) * uOpacity, 0.0, 1.0);
+
+    gl_FragColor = vec4(finalColor, alpha);
+  }
+`;
+
 const AntigravityInner: React.FC<AntigravityProps> = ({
   count = 300,
   magnetRadius = 10,
@@ -72,6 +127,10 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
   lerpSpeed = 0.1,
   color = '#4285f4',
   colorGradient,
+  internalGradientStrength = 0.6,
+  rimStrength = 0.55,
+  particleOpacity = 0.75,
+  additiveBlend = true,
   autoAnimate = false,
   particleVariance = 1,
   rotationSpeed = 0,
@@ -81,11 +140,26 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
   fieldStrength = 10
 }) => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
   const { viewport } = useThree();
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const lastMousePos = useRef({ x: 0, y: 0 });
   const lastMouseMoveTime = useRef(0);
   const virtualMouse = useRef({ x: 0, y: 0 });
+  const instanceColorAttribute = useMemo(
+    () => new THREE.InstancedBufferAttribute(new Float32Array(count * 3), 3),
+    [count]
+  );
+
+  const shaderUniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uGradientStrength: { value: internalGradientStrength },
+      uRimStrength: { value: rimStrength },
+      uOpacity: { value: particleOpacity }
+    }),
+    [internalGradientStrength, rimStrength, particleOpacity]
+  );
 
   const gradientKey = useMemo(() => {
     if (!colorGradient || colorGradient.length === 0) {
@@ -117,9 +191,10 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
       const randomRadiusOffset = (Math.random() - 0.5) * 2;
 
       const indexT = count > 1 ? i / (count - 1) : 0;
-      const spreadOffset = (Math.random() - 0.5) * 0.18;
+      const spreadOffset = (Math.random() - 0.5) * 0.55;
       const gradientT = clamp01(indexT + spreadOffset);
       const particleColor = interpolateGradientColor(gradientStops, gradientT);
+      particleColor.multiplyScalar(0.82 + Math.random() * 0.32);
 
       temp.push({
         t,
@@ -161,6 +236,10 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
   useFrame(state => {
     const mesh = meshRef.current;
     if (!mesh) return;
+
+    if (materialRef.current) {
+      materialRef.current.uniforms.uTime.value = state.clock.getElapsedTime();
+    }
 
     const { viewport: v, pointer: m } = state;
     const mouseDist = Math.sqrt(Math.pow(m.x - lastMousePos.current.x, 2) + Math.pow(m.y - lastMousePos.current.y, 2));
@@ -239,12 +318,25 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
   });
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
+    <instancedMesh
+      ref={meshRef}
+      args={[undefined, undefined, count]}
+      instanceColor={instanceColorAttribute}
+    >
       {particleShape === 'capsule' && <capsuleGeometry args={[0.1, 0.4, 4, 8]} />}
       {particleShape === 'sphere' && <sphereGeometry args={[0.2, 16, 16]} />}
       {particleShape === 'box' && <boxGeometry args={[0.3, 0.3, 0.3]} />}
       {particleShape === 'tetrahedron' && <tetrahedronGeometry args={[0.3]} />}
-      <meshBasicMaterial color="#ffffff" />
+      <shaderMaterial
+        ref={materialRef}
+        uniforms={shaderUniforms}
+        vertexShader={PARTICLE_VERTEX_SHADER}
+        fragmentShader={PARTICLE_FRAGMENT_SHADER}
+        transparent
+        depthWrite={false}
+        toneMapped={false}
+        blending={additiveBlend ? THREE.AdditiveBlending : THREE.NormalBlending}
+      />
     </instancedMesh>
   );
 };

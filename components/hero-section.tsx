@@ -8,7 +8,7 @@ import { Copy, Check } from "lucide-react"
 // ─── Interactive Repulsion Particle System (Antigravity-style) ────────────────
 import Antigravity from "@/components/ui/antigravity"
 
-const HERO_PARTICLE_GRADIENT = ["#4285f4", "#9c27b0", "#34a853"] as const
+const HERO_PARTICLE_GRADIENT = ["#4285f4", "#34a853", "#fbbc05", "#ea4335"] as const
 
 // ─── Typing Code Snippet ──────────────────────────────────────────────────────
 function TypingCode({ onComplete }: { onComplete?: () => void }) {
@@ -94,6 +94,10 @@ export function HeroSection() {
           particleSize={1.5}
           lerpSpeed={0.05}
           colorGradient={HERO_PARTICLE_GRADIENT}
+          internalGradientStrength={0.62}
+          rimStrength={0.58}
+          particleOpacity={0.72}
+          additiveBlend
           autoAnimate
           particleVariance={1}
           rotationSpeed={0}
