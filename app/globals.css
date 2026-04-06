@@ -83,7 +83,8 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-geist), "Geist", "Geist Fallback", system-ui, sans-serif;
+  /* DM Sans as primary UI font (closest to Google Sans) */
+  --font-sans: var(--font-dm-sans), "DM Sans", var(--font-geist), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), "Geist Mono", "Geist Mono Fallback", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -129,7 +130,53 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Force light mode for the new design */
+    background: #f0f4ff;
+    color: #1a1a1a;
   }
+}
+
+/* ─── Dot Grid Utility ─────────────────────────────────────────────────────── */
+.dot-grid {
+  background-image: radial-gradient(circle, #c8c8c8 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ─── Pill Button Utilities ────────────────────────────────────────────────── */
+.pill-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 999px;
+  background: #202124;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.pill-btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.pill-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 999px;
+  background: rgba(241,243,244,0.9);
+  color: #202124;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: 1px solid rgba(0,0,0,0.08);
+  transition: transform 0.2s;
+}
+.pill-btn-ghost:hover {
+  transform: translateY(-2px);
 }
 
 /* Enhanced cursor glow with smoother gradient */
