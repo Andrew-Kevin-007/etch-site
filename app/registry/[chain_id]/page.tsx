@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react"
 import { useParams } from "next/navigation"
 import { motion, useScroll, useSpring, AnimatePresence } from "framer-motion"
-import { Loader2, ShieldCheck, Copy, Check, Terminal, Link as LinkIcon, Database, ArrowRight, Fingerprint, Activity, Clock, Shield, Cpu, Lock } from "lucide-react" 
+import { Loader2, ShieldCheck, Copy, Check, Terminal, Link as LinkIcon, Database, ArrowRight, Fingerprint, Activity, Clock, Shield, Cpu, Lock, ArrowLeft } from "lucide-react" 
+import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 
@@ -21,7 +22,7 @@ function SignaturePulse() {
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="w-16 h-16 rounded-full border border-indigo-200"
+        className="w-16 h-16 rounded-full border border-violet-200"
       />
       <motion.div
         animate={{
@@ -34,7 +35,7 @@ function SignaturePulse() {
           ease: "easeInOut",
           delay: 0.5,
         }}
-        className="w-20 h-20 rounded-full border border-indigo-100"
+        className="w-20 h-20 rounded-full border border-violet-100"
       />
     </div>
   )
@@ -44,12 +45,12 @@ function SignaturePulse() {
 function HashSegment({ value }: { value: string }) {
   return (
     <div className="relative overflow-hidden rounded-xl bg-gray-50 border border-gray-100 group-hover:bg-white transition-all p-4">
-      <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500/20" />
+      <div className="absolute top-0 left-0 w-1 h-full bg-violet-500/20" />
       <code className="text-xs font-mono text-slate-600 break-all leading-relaxed bg-transparent p-0 block relative z-10">
         {value}
       </code>
       <motion.div 
-        className="absolute bottom-0 left-0 h-[1px] bg-indigo-500/30"
+        className="absolute bottom-0 left-0 h-[1px] bg-violet-500/30"
         animate={{ width: ["0%", "100%", "0%"] }}
         transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
       />
@@ -116,13 +117,13 @@ export default function ChainPage() {
   const filename = latestNode?.file_path ? latestNode.file_path.split(/[/\\]/).pop() : "Unknown Module"
 
   return (
-    <main className="relative min-h-screen bg-[#FDFDFF] selection:bg-indigo-100 font-sans text-slate-800">
+    <main className="relative min-h-screen bg-[#FDFDFF] selection:bg-violet-100 font-sans text-slate-800">
       <Header />
       
-      {/* Background technical accents - changed focus to Indigo */}
+      {/* Background technical accents - changed focus to Violet */}
       <div className="absolute inset-0 pointer-events-none opacity-30 z-0">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-l from-indigo-50/50 to-transparent blur-3xl rounded-full" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-t from-violet-50/30 to-transparent blur-3xl rounded-full" />
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-l from-violet-50/50 to-transparent blur-3xl rounded-full" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-t from-fuchsia-50/20 to-transparent blur-3xl rounded-full" />
       </div>
 
       <div className="relative pt-[72px] z-10 flex flex-col md:flex-row min-h-screen">
@@ -136,10 +137,19 @@ export default function ChainPage() {
             animate={{ opacity: 1, x: 0 }}
             className="space-y-10"
           >
+            {/* Back Button */}
+            <Link 
+              href="/registry" 
+              className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-violet-600 transition-colors group"
+            >
+              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              Back to Registry
+            </Link>
+
             {/* Module Name & Status */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase tracking-wider border border-indigo-100 shadow-sm">
+                <div className="px-2 py-0.5 rounded-full bg-violet-50 text-violet-600 text-[10px] font-bold uppercase tracking-wider border border-violet-100 shadow-sm">
                   Active Provenance
                 </div>
                 <div className="flex-1 h-px bg-slate-100" />
@@ -170,7 +180,7 @@ export default function ChainPage() {
             <div className="space-y-3">
               <button 
                 onClick={() => copyToClipboard(chainId, 'chain-id')}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm hover:border-indigo-500 hover:text-indigo-600 transition-all font-medium group"
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm hover:border-violet-500 hover:text-violet-600 transition-all font-medium group"
               >
                 <span className="flex items-center gap-2">
                   <Fingerprint className="h-4 w-4 opacity-50 group-hover:opacity-100" /> Chain Identity
@@ -179,7 +189,7 @@ export default function ChainPage() {
               </button>
               <a
                 href={`/verify?chain_id=${latestNode?.chain_id}&head_hash=${latestNode?.head_hash}`}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-slate-900 transition-all shadow-lg shadow-indigo-500/10 active:scale-95"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-slate-900 transition-all shadow-lg shadow-violet-500/10 active:scale-95"
               >
                 <ShieldCheck className="h-4 w-4" /> Run Protocol Validator
               </a>
@@ -195,9 +205,9 @@ export default function ChainPage() {
                   <div className="space-y-3">
                     {dependencies.depends_on.map((dep, idx) => (
                       <a key={idx} href={`/registry/${dep}`} className="flex items-center gap-3 p-3 rounded-lg border border-transparent hover:border-slate-100 hover:bg-slate-50 transition-all group">
-                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 opacity-40" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-violet-400 opacity-40" />
                         <code className="text-xs font-mono text-slate-500 truncate flex-1">{dep}</code>
-                        <ArrowRight className="h-3.5 w-3.5 text-slate-300 group-hover:text-indigo-500 transition-all" />
+                        <ArrowRight className="h-3.5 w-3.5 text-slate-300 group-hover:text-violet-500 transition-all" />
                       </a>
                     ))}
                   </div>
@@ -218,7 +228,7 @@ export default function ChainPage() {
             
             {loading ? (
               <div className="flex flex-col items-center justify-center py-32">
-                <Loader2 className="h-10 w-10 animate-spin text-indigo-600 mb-6 font-thin" />
+                <Loader2 className="h-10 w-10 animate-spin text-violet-600 mb-6 font-thin" />
                 <p className="text-slate-400 font-mono text-xs tracking-widest uppercase text-center">Synchronizing Cryptographic Trace...</p>
               </div>
             ) : chainNodes.length === 0 ? (
@@ -229,24 +239,24 @@ export default function ChainPage() {
             ) : (
               <>
                 <div className="mb-20">
-                  <div className="flex items-center gap-4 text-xs font-mono text-indigo-500 uppercase tracking-widest mb-6">
-                    <span className="flex h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                  <div className="flex items-center gap-4 text-xs font-mono text-violet-500 uppercase tracking-widest mb-6">
+                    <span className="flex h-1.5 w-1.5 rounded-full bg-violet-500 animate-pulse" />
                     Bespoke Protocol Sequence
                   </div>
                   <h2 className="text-4xl font-normal text-slate-900 mb-6 tracking-tight leading-tight">
                     Proof <br/>
-                    <span className="text-indigo-600">Authorship Stream</span>
+                    <span className="text-violet-600">Authorship Stream</span>
                   </h2>
                   <p className="text-lg text-slate-500 leading-relaxed max-w-xl font-light">
                     Every sequence below is rooted in an offline cryptographic assertion. The ETCH network validates stylistic invariants at the AST level to ensure high-entropy human logic.
                   </p>
                 </div>
 
-                {/* THE TRACE LINE - Updated to Indigo */}
-                <div className="absolute top-[350px] bottom-0 left-0 w-px bg-gradient-to-b from-indigo-100 via-slate-100 to-transparent" />
+                {/* THE TRACE LINE - Updated to Violet */}
+                <div className="absolute top-[350px] bottom-0 left-0 w-px bg-gradient-to-b from-violet-100 via-slate-100 to-transparent" />
                 <motion.div
                   style={{ scaleY }}
-                  className="absolute top-[350px] bottom-0 left-0 w-px bg-gradient-to-b from-indigo-500 to-violet-500 origin-top z-10 shadow-[0_0_15px_rgba(99,102,241,0.4)]"
+                  className="absolute top-[350px] bottom-0 left-0 w-px bg-gradient-to-b from-violet-500 to-fuchsia-500 origin-top z-10 shadow-[0_0_15px_rgba(139,92,246,0.4)]"
                 />
 
                 <div className="space-y-32">
@@ -262,9 +272,9 @@ export default function ChainPage() {
                       >
                         {/* THE NODE INDICATOR */}
                         <div className="absolute -left-1.5 top-0 flex items-center justify-center">
-                          <div className={`w-3 h-3 rounded-full border-2 border-white shadow-sm ring-4 ring-white relative z-20 ${i === chainNodes.length - 1 ? 'bg-indigo-600' : 'bg-slate-200 transition-colors group-hover:bg-indigo-400'}`}>
+                          <div className={`w-3 h-3 rounded-full border-2 border-white shadow-sm ring-4 ring-white relative z-20 ${i === chainNodes.length - 1 ? 'bg-violet-600' : 'bg-slate-200 transition-colors group-hover:bg-violet-400'}`}>
                             {i === chainNodes.length - 1 && (
-                              <div className="absolute inset-0 rounded-full bg-indigo-600 animate-ping opacity-30" />
+                              <div className="absolute inset-0 rounded-full bg-violet-600 animate-ping opacity-30" />
                             )}
                           </div>
                         </div>
@@ -274,7 +284,7 @@ export default function ChainPage() {
                           {/* Header of node */}
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
-                              <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                              <p className="text-[10px] font-bold text-violet-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
                                 <Cpu className="h-3 w-3" />
                                 Anchor Segment #{node.chain_depth || (i + 1)}
                               </p>
@@ -282,15 +292,15 @@ export default function ChainPage() {
                                 {node.created_at ? new Date(node.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Unknown Date'}
                               </p>
                             </div>
-                            <div className="px-3 py-1 rounded-full bg-indigo-50/50 border border-indigo-100 font-mono text-[10px] text-indigo-600 font-bold">
+                            <div className="px-3 py-1 rounded-full bg-violet-50/50 border border-violet-100 font-mono text-[10px] text-violet-600 font-bold">
                               TX_{ (node.head_hash || '').substring(0, 8).toUpperCase() }
                             </div>
                           </div>
 
-                          {/* Detail Card - Refactored to Indigo/Slate */}
-                          <div className="bg-white border border-slate-100 rounded-3xl p-8 hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500 hover:border-indigo-100 relative overflow-hidden group">
+                          {/* Detail Card - Refactored to Violet/Slate */}
+                          <div className="bg-white border border-slate-100 rounded-3xl p-8 hover:shadow-2xl hover:shadow-violet-500/5 transition-all duration-500 hover:border-violet-100 relative overflow-hidden group">
                             {/* Inner abstract accent */}
-                            <div className="absolute -top-4 -right-4 w-24 h-24 bg-indigo-50/20 rounded-full blur-2xl group-hover:bg-indigo-50/40 transition-all" />
+                            <div className="absolute -top-4 -right-4 w-24 h-24 bg-violet-50/20 rounded-full blur-2xl group-hover:bg-violet-50/40 transition-all" />
 
                             <div className="grid grid-cols-1 gap-8 items-start">
                               <div>
@@ -303,7 +313,7 @@ export default function ChainPage() {
                                 <div className="mt-3 flex items-center gap-4">
                                   <button 
                                     onClick={() => copyToClipboard(node.contributor_pubkey, `pub-${i}`)}
-                                    className="flex items-center gap-2 text-[10px] font-bold text-indigo-600 hover:text-slate-900 uppercase tracking-widest transition-colors"
+                                    className="flex items-center gap-2 text-[10px] font-bold text-violet-600 hover:text-slate-900 uppercase tracking-widest transition-colors"
                                   >
                                     {copiedId === `pub-${i}` ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
                                     {copiedId === `pub-${i}` ? 'Copied to Buffer' : 'Export Identity'}
@@ -348,5 +358,6 @@ export default function ChainPage() {
     </main>
   )
 }
+
 
 

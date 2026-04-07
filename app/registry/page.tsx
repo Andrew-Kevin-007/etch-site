@@ -123,7 +123,7 @@ export default function RegistryPage() {
 
              <nav className="flex-1 space-y-1">
                 {/* Active Tab */}
-                <div className="flex items-center gap-4 px-6 py-2.5 bg-[#e8f0fe] rounded-r-full text-[#1a73e8] font-medium text-[13px] mr-4 cursor-pointer">
+                <div className="flex items-center gap-4 px-6 py-2.5 bg-violet-50 rounded-r-full text-violet-600 font-medium text-[13px] mr-4 cursor-pointer">
                    <Shield className="h-[18px] w-[18px]" />
                    All Modules
                 </div>
@@ -155,7 +155,7 @@ export default function RegistryPage() {
                        <span className="font-mono text-gray-500">{loading ? "..." : stats.totalModules}</span>
                      </p>
                      <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-blue-500 h-full w-[45%]" />
+                        <div className="bg-violet-500 h-full w-[45%]" />
                      </div>
                    </div>
                    <div>
