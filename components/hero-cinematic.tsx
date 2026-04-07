@@ -5,59 +5,13 @@ import { useEffect, useRef, useState, Suspense } from "react"
 import { motion, useScroll, useTransform, AnimatePresence, Variants } from "framer-motion"
 import { ArrowRight, Copy, Check } from "lucide-react"
 import Lenis from "lenis"
-import { Canvas } from "@react-three/fiber"
-import { Float, Environment, Sphere, Torus, Icosahedron } from "@react-three/drei"
+import dynamic from "next/dynamic"
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// FLOATING 3D GEOMETRIES (React Three Fiber)
-// ═══════════════════════════════════════════════════════════════════════════════
+const Floating3DGeometries = dynamic(() => import("./floating-3d-geometries"), {
+  ssr: false,
+})
 
-function Floating3DGeometries() {
-  return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 2, ease: "easeOut" }}
-      className="absolute inset-0 pointer-events-none z-0"
-    >
-      <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0, 10], fov: 45 }} performance={{ min: 0.5 }}>
-        <Suspense fallback={null}>
-          <Environment preset="city" />
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={1} />
-          
-          {/* Blue Sphere */}
-          <Float speed={2} rotationIntensity={1.5} floatIntensity={2}>
-            <Sphere args={[0.8, 64, 64]} position={[-4, 2, -1]}>
-              <meshStandardMaterial color="#4285F4" roughness={0.1} metalness={0.4} />
-            </Sphere>
-          </Float>
 
-          {/* Red Torus */}
-          <Float speed={2.5} rotationIntensity={2} floatIntensity={2}>
-            <Torus args={[0.6, 0.2, 32, 64]} position={[4, 1.5, -3]} rotation={[1, 1, 0]}>
-              <meshStandardMaterial color="#EA4335" roughness={0.2} metalness={0.3} />
-            </Torus>
-          </Float>
-
-          {/* Yellow Icosahedron */}
-          <Float speed={1.5} rotationIntensity={2} floatIntensity={1.5}>
-            <Icosahedron args={[0.7, 0]} position={[3, -2, -2]}>
-              <meshStandardMaterial color="#FBBC05" roughness={0.1} metalness={0.5} />
-            </Icosahedron>
-          </Float>
-
-          {/* Green Sphere */}
-          <Float speed={3} rotationIntensity={1} floatIntensity={2}>
-            <Sphere args={[0.5, 64, 64]} position={[-3, -1.5, -3]}>
-              <meshStandardMaterial color="#34A853" roughness={0.1} metalness={0.4} />
-            </Sphere>
-          </Float>
-        </Suspense>
-      </Canvas>
-    </motion.div>
-  )
-}
 
 function TerminalTyping({ startDelay = 0 }: { startDelay?: number }) {
   const [displayedText, setDisplayedText] = useState("")
