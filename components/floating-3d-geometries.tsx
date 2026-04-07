@@ -14,15 +14,14 @@ export default function Floating3DGeometries() {
       className="absolute inset-0 pointer-events-none z-0"
     >
       <Canvas 
-        dpr={[1, 2]} 
+        dpr={[1, 1.5]} 
         camera={{ position: [0, 0, 10], fov: 45 }} 
         performance={{ min: 0.5 }}
-        gl={{ alpha: true, antialias: true }}
       >
         <Suspense fallback={null}>
           <Environment preset="city" />
           <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={1.5} />
+          <directionalLight position={[10, 10, 5]} intensity={1} />
           
           {/* Blue Sphere */}
           <Float speed={2} rotationIntensity={1.5} floatIntensity={2}>
@@ -31,8 +30,6 @@ export default function Floating3DGeometries() {
                 color="#4285F4" 
                 roughness={0.1} 
                 metalness={0.4} 
-                emissive="#4285F4"
-                emissiveIntensity={0.2}
               />
             </Sphere>
           </Float>
@@ -44,8 +41,6 @@ export default function Floating3DGeometries() {
                 color="#EA4335" 
                 roughness={0.2} 
                 metalness={0.3} 
-                emissive="#EA4335"
-                emissiveIntensity={0.2}
               />
             </Torus>
           </Float>
@@ -57,8 +52,6 @@ export default function Floating3DGeometries() {
                 color="#FBBC05" 
                 roughness={0.1} 
                 metalness={0.5} 
-                emissive="#FBBC05"
-                emissiveIntensity={0.2}
               />
             </Icosahedron>
           </Float>
@@ -70,8 +63,6 @@ export default function Floating3DGeometries() {
                 color="#34A853" 
                 roughness={0.1} 
                 metalness={0.4} 
-                emissive="#34A853"
-                emissiveIntensity={0.2}
               />
             </Sphere>
           </Float>
@@ -80,5 +71,6 @@ export default function Floating3DGeometries() {
     </motion.div>
   )
 }
+
 
 
