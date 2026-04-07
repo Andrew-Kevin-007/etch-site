@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono, DM_Sans, Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
+import { SmoothScroll } from "@/components/smooth-scroll"
 import "./globals.css"
 
 // Configure fonts with proper options
@@ -103,7 +104,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={`${geist.variable} ${geistMono.variable} ${inter.variable} ${dmSans.variable}`}>
       <body className="font-sans antialiased" suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="theme-mode">
-          {children}
+          <SmoothScroll>
+            {children}
+          </SmoothScroll>
         </ThemeProvider>
         <Analytics />
       </body>

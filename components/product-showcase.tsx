@@ -13,8 +13,22 @@ function EtchDotLogo() {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    const W = canvas.width
-    const H = canvas.height
+    const dpr = window.devicePixelRatio || 1
+    const rect = canvas.getBoundingClientRect()
+    
+    // Set display size
+    canvas.style.width = `${rect.width}px`
+    canvas.style.height = `${rect.height}px`
+    
+    // Set actual size in memory
+    canvas.width = rect.width * dpr
+    canvas.height = rect.height * dpr
+    
+    // Scale all drawing operations by the dpr
+    ctx.scale(dpr, dpr)
+
+    const W = rect.width
+    const H = rect.height
     const cx = W / 2
     const cy = H / 2
 
@@ -49,47 +63,57 @@ function EtchDotLogo() {
     // Subtle float animation
     let animFrame: number
     let tick = 0
+    let isVisible = true
+
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting
+    }, { threshold: 0 })
+    observer.observe(canvas)
 
     const draw = () => {
-      ctx.clearRect(0, 0, W, H)
+      if (isVisible) {
+        ctx.clearRect(0, 0, W, H)
 
-      const startX = cx - ((cols - 1) * dotSpacing) / 2
-      const startY = cy - ((rows - 1) * dotSpacing) / 2
+        const startX = cx - ((cols - 1) * dotSpacing) / 2
+        const startY = cy - ((rows - 1) * dotSpacing) / 2
 
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          if (!letterE[r][c]) continue
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            if (!letterE[r][c]) continue
 
-          const x = startX + c * dotSpacing
-          const floatY = startY + r * dotSpacing + Math.sin(tick * 0.02 + (r + c) * 0.4) * 2.5
+            const x = startX + c * dotSpacing
+            const floatY = startY + r * dotSpacing + Math.sin(tick * 0.02 + (r + c) * 0.4) * 2.5
 
-          const color = getColor(r, c)
+            const color = getColor(r, c)
 
-          // Glow
-          const grad = ctx.createRadialGradient(x, floatY, 0, x, floatY, dotRadius * 3)
-          grad.addColorStop(0, color + "60")
-          grad.addColorStop(1, "transparent")
-          ctx.fillStyle = grad
-          ctx.beginPath()
-          ctx.arc(x, floatY, dotRadius * 3, 0, Math.PI * 2)
-          ctx.fill()
+            // Glow
+            const grad = ctx.createRadialGradient(x, floatY, 0, x, floatY, dotRadius * 3)
+            grad.addColorStop(0, color + "60")
+            grad.addColorStop(1, "transparent")
+            ctx.fillStyle = grad
+            ctx.beginPath()
+            ctx.arc(x, floatY, dotRadius * 3, 0, Math.PI * 2)
+            ctx.fill()
 
-          // Dot
-          ctx.fillStyle = color
-          ctx.globalAlpha = 0.9
-          ctx.beginPath()
-          ctx.arc(x, floatY, dotRadius, 0, Math.PI * 2)
-          ctx.fill()
-          ctx.globalAlpha = 1
+            // Dot
+            ctx.fillStyle = color
+            ctx.globalAlpha = 0.9
+            ctx.beginPath()
+            ctx.arc(x, floatY, dotRadius, 0, Math.PI * 2)
+            ctx.fill()
+            ctx.globalAlpha = 1
+          }
         }
+        tick++
       }
-
-      tick++
       animFrame = requestAnimationFrame(draw)
     }
 
     draw()
-    return () => cancelAnimationFrame(animFrame)
+    return () => {
+      cancelAnimationFrame(animFrame)
+      observer.disconnect()
+    }
   }, [])
 
   return (
@@ -114,36 +138,47 @@ function WaveParticles() {
     if (!ctx) return
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth
-      canvas.height = canvas.offsetHeight
+      const dpr = window.devicePixelRatio || 1
+      const rect = canvas.getBoundingClientRect()
+      canvas.width = rect.width * dpr
+      canvas.height = rect.height * dpr
+      ctx.scale(dpr, dpr)
     }
     resize()
     window.addEventListener("resize", resize)
 
     let animFrame: number
     let tick = 0
+    let isVisible = true
+
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting
+    }, { threshold: 0 })
+    observer.observe(canvas)
 
     const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      if (isVisible) {
+        const rect = canvas.getBoundingClientRect()
+        ctx.clearRect(0, 0, rect.width, rect.height)
 
-      const cols = Math.floor(canvas.width / 22)
-      const rows = Math.floor(canvas.height / 22)
+        const cols = Math.floor(rect.width / 22)
+        const rows = Math.floor(rect.height / 22)
 
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const x = c * 22 + 11
-          const y = r * 22 + 11
-          const wave = Math.sin(tick * 0.025 + c * 0.35 + r * 0.35)
-          const opacity = 0.03 + (wave + 1) * 0.05
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const x = c * 22 + 11
+            const y = r * 22 + 11
+            const wave = Math.sin(tick * 0.025 + c * 0.35 + r * 0.35)
+            const opacity = 0.03 + (wave + 1) * 0.05
 
-          ctx.fillStyle = `rgba(255,255,255,${opacity})`
-          ctx.beginPath()
-          ctx.arc(x, y, 1.5, 0, Math.PI * 2)
-          ctx.fill()
+            ctx.fillStyle = `rgba(255,255,255,${opacity})`
+            ctx.beginPath()
+            ctx.arc(x, y, 1.5, 0, Math.PI * 2)
+            ctx.fill()
+          }
         }
+        tick++
       }
-
-      tick++
       animFrame = requestAnimationFrame(draw)
     }
 
@@ -151,6 +186,7 @@ function WaveParticles() {
     return () => {
       cancelAnimationFrame(animFrame)
       window.removeEventListener("resize", resize)
+      observer.disconnect()
     }
   }, [])
 

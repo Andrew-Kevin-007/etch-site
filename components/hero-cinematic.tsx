@@ -4,7 +4,6 @@ import Link from "next/link"
 import { useEffect, useRef, useState, Suspense } from "react"
 import { motion, useScroll, useTransform, AnimatePresence, Variants } from "framer-motion"
 import { ArrowRight, Copy, Check } from "lucide-react"
-import Lenis from "lenis"
 import dynamic from "next/dynamic"
 
 const Floating3DGeometries = dynamic(() => import("./floating-3d-geometries"), {
@@ -72,7 +71,7 @@ export function HeroCinematic() {
   const sectionRef = useRef<HTMLElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const [copied, setCopied] = useState(false)
-  const [isLoaded, setIsLoaded] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(true)
 
   const copyInstall = () => {
     navigator.clipboard.writeText("cargo install etch")
@@ -80,34 +79,7 @@ export function HeroCinematic() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  // Initialize Lenis smooth scroll
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: "vertical",
-      gestureOrientation: "vertical",
-      smoothWheel: true,
-      touchMultiplier: 2,
-    })
 
-    function raf(time: number) {
-      lenis.raf(time)
-      requestAnimationFrame(raf)
-    }
-    requestAnimationFrame(raf)
-
-    // Delay entrance animation to allow React Three Fiber to compile shaders
-    // and prevent dropping frames on initial load.
-    const loadTimer = setTimeout(() => {
-      setIsLoaded(true)
-    }, 300)
-
-    return () => {
-      lenis.destroy()
-      clearTimeout(loadTimer)
-    }
-  }, [])
 
   // Scroll parallax
   const { scrollYProgress } = useScroll({

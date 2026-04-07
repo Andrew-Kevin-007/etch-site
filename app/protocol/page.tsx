@@ -76,6 +76,7 @@ export default function ProtocolDocs() {
             <nav className="flex flex-col space-y-0.5">
               <button onClick={() => scrollTo('ci-cd-integration')} className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md text-[#3c4043] hover:bg-gray-100/50">CI/CD Integration</button>
               <button onClick={() => scrollTo('editor-extensions')} className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md text-[#3c4043] hover:bg-gray-100/50">Editor Extensions</button>
+              <button onClick={() => scrollTo('enterprise-security')} className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md text-[#3c4043] hover:bg-gray-100/50">Enterprise Security</button>
             </nav>
             
             <h3 className="text-gray-500 font-semibold text-xs tracking-wider uppercase mt-8 mb-4 ml-3">Reference</h3>
@@ -237,7 +238,7 @@ export default function ProtocolDocs() {
 
               {/* EDITOR EXTENSIONS */}
               <section id="editor-extensions" className="scroll-mt-[100px]">
-                <h2 className="text-[26px] font-normal text-[#202124] tracking-tight mb-4 border-b border-gray-100 pb-2">Editor Extensions (Draft)</h2>
+                <h2 className="text-[26px] font-normal text-[#202124] tracking-tight mb-4 border-b border-gray-100 pb-2">Editor Extensions</h2>
                 <div className="text-[16px] text-[#3c4043] font-normal leading-[1.65] space-y-4">
                   <p>
                     To reduce friction, ETCH integrates closely with the places where you write code. Local signing is supported via VS Code and JetBrains extension plugins.
@@ -246,6 +247,19 @@ export default function ProtocolDocs() {
                     <li><strong>Real-time Validation:</strong> See a visual overlay indicating which functions lack a valid authorship block.</li>
                     <li><strong>Hardware Token Passthrough:</strong> Directly sign buffer contents utilizing YubiKey or built-in biometrics (Touch ID / Windows Hello) without leaving the editor.</li>
                   </ul>
+                </div>
+              </section>
+
+              {/* ENTERPRISE SECURITY */}
+              <section id="enterprise-security" className="scroll-mt-[100px]">
+                <h2 className="text-[26px] font-normal text-[#202124] tracking-tight mb-4 border-b border-gray-100 pb-2">Enterprise Security & Compliance</h2>
+                <div className="text-[16px] text-[#3c4043] font-normal leading-[1.65] space-y-4">
+                  <p>
+                    ETCH provides the "provenance" layer often required for high-stakes software auditing (SOC2 Type II, ISO 27001). By moving from simple IP-based commit logs to key-based authorship logs, enterprises can prove that every line of production code was reviewed and sealed by a qualified human engineer.
+                  </p>
+                  <p>
+                    The protocol supports <strong>Multi-Signature Quorums</strong> for critical infra changes, requiring M-of-N verified signers before the registry state transition is accepted.
+                  </p>
                 </div>
               </section>
 
@@ -276,16 +290,23 @@ export default function ProtocolDocs() {
                   </div>
 
                   <div>
-                    <h3 className="text-[16px] font-semibold text-[#202124] mb-1">How do I gain access to the API?</h3>
-                    <p className="text-[15px] text-[#3c4043] leading-relaxed">
-                      During the current rollout phase, direct API access to the ETCH network is restricted to verified enterprise contributors holding a valid <code className={INLINE_CODE}>.env</code> verification token.
-                    </p>
-                  </div>
-
-                  <div>
                     <h3 className="text-[16px] font-semibold text-[#202124] mb-1">How does this differ from simple PGP Git signing?</h3>
                     <p className="text-[15px] text-[#3c4043] leading-relaxed">
                       Standard Git signatures assert that a commit was made by your key, but not whether the contents were auto-generated. ETCH evaluates the semantics of the AST (Abstract Syntax Tree) alongside the signature binding, anchoring deep, structural logic to an individual.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#202124] mb-1">Is ETCH compliant with existing regulations?</h3>
+                    <p className="text-[15px] text-[#3c4043] leading-relaxed">
+                      Yes. ETCH helps satisfy SOC2 Type II and ISO 27001 "Access Control" and "System Development" requirements by providing a mathematically verifiable trail of human oversight for all software changes.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#202124] mb-1">What happens if I lose my private key?</h3>
+                    <p className="text-[15px] text-[#3c4043] leading-relaxed">
+                      Like any non-custodial cryptographic system, losing your key means losing the ability to sign for that identity. However, your previous signatures remain valid in the public registry. You can migrate your identity through a verified key-rotation ceremony initiated by your organization's administrative quorum.
                     </p>
                   </div>
                 </div>
@@ -349,6 +370,14 @@ export default function ProtocolDocs() {
                 className={`block w-full text-left py-1.5 pl-4 border-l-2 text-[13px] ${activeSection === 'editor-extensions' ? 'border-[#1a73e8] text-[#1a73e8] font-medium' : 'border-gray-200 text-[#5f6368] hover:text-[#202124]'}`}
               >
                 Editor Extensions
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => scrollTo('enterprise-security')} 
+                className={`block w-full text-left py-1.5 pl-4 border-l-2 text-[13px] ${activeSection === 'enterprise-security' ? 'border-[#1a73e8] text-[#1a73e8] font-medium' : 'border-gray-200 text-[#5f6368] hover:text-[#202124]'}`}
+              >
+                Enterprise Security
               </button>
             </li>
             <li>

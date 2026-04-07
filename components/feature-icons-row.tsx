@@ -104,15 +104,15 @@ function ScrollMarqueeRow({
         x: direction === "left" ? 0 : -trackWidth,
       })
 
-      // Animate based on scroll position - much slower (3x the distance)
+      // Animate based on scroll position - sensitivity reduced to 40% of track width
       gsap.to(track, {
-        x: direction === "left" ? -trackWidth : 0,
+        x: direction === "left" ? -trackWidth * 0.4 : -trackWidth * 0.6,
         ease: "none",
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top bottom",
           end: "bottom top",
-          scrub: 3, // Increased from 1 to 3 for smoother, slower animation
+          scrub: 4, // Increased scrub for buttery smoothness
         },
       })
     }, sectionRef)

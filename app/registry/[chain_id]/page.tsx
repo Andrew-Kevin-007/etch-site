@@ -76,236 +76,206 @@ export default function ChainPage() {
   const filename = latestNode?.file_path ? latestNode.file_path.split(/[/\\]/).pop() : "Unknown Module"
 
   return (
-    <>
-      <main className="relative min-h-screen flex flex-col bg-[#f8f9fa] selection:bg-blue-100">
+      <main className="relative min-h-screen flex flex-col bg-[#ffffff] selection:bg-blue-100 font-sans text-[#3c4043]">
         <Header />
         
-        <div ref={timelineRef} className="flex-1 max-w-5xl w-full mx-auto px-6 sm:px-8 pt-36 pb-24">
-          
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-32 text-blue-600 bg-white rounded-2xl border border-gray-200 shadow-sm">
-              <Loader2 className="h-10 w-10 animate-spin mb-4" />
-              <p className="text-gray-500 font-medium text-sm">Querying distributed anchors...</p>
+        {/* Sub-header / Breadcrumbs */}
+        <div className="pt-24 border-b border-gray-200 bg-[#f8f9fa] sticky top-0 z-30">
+          <div className="max-w-[1600px] mx-auto px-6 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <a href="/registry" className="text-blue-600 hover:underline text-sm font-medium whitespace-nowrap">Registry</a>
+              <span className="text-gray-400 text-sm">/</span>
+              <span className="text-[#202124] text-sm font-medium truncate">{chainId}</span>
             </div>
-          ) : chainNodes.length === 0 ? (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-20 border border-gray-200 rounded-2xl bg-white shadow-sm border-dashed"
-            >
-              <Database className="h-10 w-10 mx-auto text-gray-300 mb-4" />
-              <p className="text-[#5f6368] font-medium">Chain not found in registry.</p>
-            </motion.div>
-          ) : (
-            <>
-              {/* Header Title Section */}
-              <motion.div 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="mb-14 border-b border-gray-200 pb-8"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold tracking-wider font-mono">
-                    CHAIN ID
-                  </span>
-                  <span className="text-gray-500 font-mono text-sm truncate max-w-sm">
-                    {chainId}
-                  </span>
-                </div>
-                <h1 className="text-4xl font-bold tracking-tight text-[#202124] mb-3 truncate" title={filename}>
-                  {filename}
-                </h1>
-                <p className="text-[#5f6368] text-base">
-                  Action trace log representing the cryptographically verified authorship history of this module.
-                </p>
-              </motion.div>
-
-              {/* TIMELINE (Google Cloud Trace Style) */}
-              <div className="relative space-y-8 pl-5 md:pl-0">
-                
-                {/* Background Static Line */}
-                <div className="absolute top-0 bottom-0 left-5 md:left-1/2 w-[3px] bg-gray-200 md:-translate-x-1/2 rounded-full z-0" />
-                
-                {/* Animated Scroll Line */}
-                <motion.div
-                  style={{ scaleY }}
-                  className="absolute top-0 bottom-0 left-5 md:left-1/2 w-[3px] bg-gradient-to-b from-[#1a73e8] via-[#ea4335] to-[#34a853] origin-top md:-translate-x-1/2 rounded-full z-0"
-                />
-
-                {chainNodes.map((node, i) => {
-                  const color = GOOGLE_COLORS[i % GOOGLE_COLORS.length];
-                  return (
-                  <motion.div 
-                    key={i} 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: i * 0.1 }}
-                    className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group"
-                  >
-                    
-                    {/* Center Node Avatar */}
-                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 border-[#f8f9fa] ${color.bg} ${color.text} font-mono text-sm font-semibold shadow-sm shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 relative z-10 transition-transform duration-300 group-hover:scale-110`}>
-                      {node.chain_depth || (i + 1)}
-                    </div>
-                    
-                    {/* Log Card */}
-                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-3rem)] p-6 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md relative group">
-                      
-                      {/* Active Node Indicator Overlay */}
-                      {i === chainNodes.length - 1 && (
-                        <div className="absolute -top-3 left-6 sm:left-auto sm:right-6 bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm text-[10px] text-gray-500 whitespace-nowrap font-semibold uppercase tracking-wider">
-                          Latest Signature
-                        </div>
-                      )}
-
-                      <div className="flex justify-between items-center mb-5 border-b border-gray-100 pb-4">
-                        <span className="font-mono text-[13px] text-gray-500 font-medium">
-                          {node.created_at ? new Date(node.created_at).toLocaleString() : 'Unknown Time'}
-                        </span>
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-50 border border-green-200/60 text-green-700 text-[11px] font-semibold tracking-wide whitespace-nowrap">
-                          <ShieldCheck className="h-3 w-3" /> VERIFIED
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-4 text-sm break-all">
-                        <div>
-                          <p className="text-gray-400 text-[11px] font-semibold uppercase tracking-wider mb-1.5">Signer Identity</p>
-                          <code className="bg-[#f1f3f4] text-[#3c4043] px-2 py-1 rounded text-xs font-mono border border-gray-200/60 inline-block font-medium">
-                            {node.contributor_pubkey}
-                          </code>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-gray-400 text-[11px] font-semibold uppercase tracking-wider mb-1.5">File Hash</p>
-                            <code className="text-gray-700 text-xs font-mono bg-gray-50 px-2 py-1 rounded border border-gray-200/40 inline-block">
-                              {(node.head_hash || '').substring(0, 16)}...
-                            </code>
-                          </div>
-                          <div>
-                            <p className="text-gray-400 text-[11px] font-semibold uppercase tracking-wider mb-1.5">Prev Hash</p>
-                            <code className="text-gray-500 text-xs font-mono bg-gray-50 px-2 py-1 rounded border border-gray-200/40 inline-block">
-                              {(node.prev_hash || 'genesis_block_00').substring(0, 16)}...
-                            </code>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                )})}
-              </div>
-
-              {/* CHAIN HEAD HASH BANNER */}
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: chainNodes.length * 0.1 }}
-                className="mt-20 p-6 sm:p-8 rounded-2xl border border-blue-100 bg-blue-50/50 flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden"
-              >
-                <div className="absolute top-0 left-0 w-1 h-full bg-blue-500" />
-                <div className="w-full sm:w-auto overflow-hidden">
-                  <p className="text-blue-800 text-[11px] font-semibold uppercase tracking-wider mb-2">Primary Chain Head Hash</p>
-                  <code className="text-[#3c4043] font-mono text-sm bg-white border border-gray-200 px-3 py-1.5 rounded-lg truncate block sm:max-w-md shadow-sm" title={latestNode.head_hash}>
-                    {latestNode.head_hash}
-                  </code>
-                </div>
-                <button 
-                  onClick={() => copyToClipboard(latestNode.head_hash, 'head-hash')}
-                  className="shrink-0 flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg border border-blue-200 text-blue-700 font-semibold text-[13px] bg-white hover:bg-blue-50 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 w-full sm:w-auto outline-none shadow-sm"
+            {!loading && chainNodes.length > 0 && (
+              <div className="flex items-center gap-3">
+                 <button 
+                  onClick={() => copyToClipboard(chainId, 'chain-id')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-300 bg-white text-[#3c4043] text-xs font-medium hover:bg-gray-50 transition-colors"
                 >
-                  {copiedId === 'head-hash' ? (
-                    <><Check className="h-4 w-4" /> COPIED</>
-                  ) : (
-                    <><Copy className="h-4 w-4" /> COPY HASH</>
-                  )}
+                  {copiedId === 'chain-id' ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
+                  Copy ID
                 </button>
-              </motion.div>
-              
-              {/* PRIMARY CTA */}
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: (chainNodes.length * 0.1) + 0.1 }}
-                className="mt-12 flex justify-center"
-              >
                 <a
-                  href={`/verify?chain_id=${latestNode.chain_id}&head_hash=${latestNode.head_hash}`}
-                  className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-[14px] text-white bg-[#1a73e8] hover:bg-[#1557b0] transition-all hover:-translate-y-0.5 shadow-[0_4px_14px_rgba(26,115,232,0.39)] hover:shadow-[0_6px_20px_rgba(26,115,232,0.23)]"
+                  href={`/verify?chain_id=${latestNode?.chain_id}&head_hash=${latestNode?.head_hash}`}
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#1a73e8] text-white text-xs font-semibold hover:bg-[#1b66c9] shadow-sm transition-colors"
                 >
-                  <ShieldCheck className="h-4 w-4" /> VERIFY CHAIN INTEGRITY
-                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform ml-1" />
+                  <ShieldCheck className="h-3.5 w-3.5" /> Verify
                 </a>
-              </motion.div>
-
-              {/* DEPENDENCIES GRID */}
-              {dependencies && (
-                <div className="mt-24 grid grid-cols-1 md:grid-cols-2 gap-10">
-                  
-                  {/* Depends On */}
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                  >
-                    <h2 className="text-[15px] font-semibold text-[#202124] mb-5 border-b border-gray-200 pb-3 flex items-center gap-2 uppercase tracking-wide">
-                      <Database className="h-4 w-4 text-gray-400" /> Depends On
-                    </h2>
-                    {dependencies.depends_on && dependencies.depends_on.length > 0 ? (
-                      <div className="space-y-3">
-                        {dependencies.depends_on.map((dep, idx) => (
-                          <a key={`dep-${idx}`} href={`/registry/${dep}`} className="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 group cursor-pointer">
-                            <code className="font-mono text-sm text-gray-600 px-2 py-0.5 rounded bg-gray-100 group-hover:bg-white border border-gray-200/50 transition-colors">
-                              {dep.substring(0, 16)}...
-                            </code>
-                            <LinkIcon className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
-                          </a>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="p-8 rounded-xl border border-gray-200 border-dashed bg-white text-center shadow-sm">
-                        <p className="text-gray-400 font-medium text-sm">No upstream dependencies</p>
-                      </div>
-                    )}
-                  </motion.div>
-
-                  {/* Used By */}
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: 0.1 }}
-                  >
-                    <h2 className="text-[15px] font-semibold text-[#202124] mb-5 border-b border-gray-200 pb-3 flex items-center gap-2 uppercase tracking-wide">
-                      <LinkIcon className="h-4 w-4 text-gray-400" /> Used By
-                    </h2>
-                    {dependencies.used_by && dependencies.used_by.length > 0 ? (
-                      <div className="space-y-3">
-                        {dependencies.used_by.map((dep, idx) => (
-                          <a key={`used-${idx}`} href={`/registry/${dep}`} className="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 group cursor-pointer">
-                            <code className="font-mono text-sm text-gray-600 px-2 py-0.5 rounded bg-gray-100 group-hover:bg-white border border-gray-200/50 transition-colors">
-                              {dep.substring(0, 16)}...
-                            </code>
-                            <LinkIcon className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
-                          </a>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="p-8 rounded-xl border border-gray-200 border-dashed bg-white text-center shadow-sm">
-                        <p className="text-gray-400 font-medium text-sm">No downstream dependents</p>
-                      </div>
-                    )}
-                  </motion.div>
-                  
-                </div>
-              )}
-
-            </>
-          )}
-          
+              </div>
+            )}
+          </div>
         </div>
+
+        <div className="flex-1 flex w-full max-w-[1600px] mx-auto px-6 py-8 gap-10">
+          
+          <div ref={timelineRef} className="flex-1 min-w-0">
+          
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-32">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
+                <p className="text-gray-500 font-medium text-sm">Loading registry trace...</p>
+              </div>
+            ) : chainNodes.length === 0 ? (
+              <div className="text-center py-20 border border-gray-200 rounded-lg bg-gray-50 border-dashed">
+                <Database className="h-10 w-10 mx-auto text-gray-300 mb-4" />
+                <p className="text-[#5f6368] font-medium">Chain no longer exists or was never anchored.</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="mb-10">
+                  <h1 className="text-2xl font-semibold text-[#202124] mb-2">{filename}</h1>
+                  <p className="text-sm text-[#5f6368] max-w-2xl">
+                    View the cryptographic attestation history for this module. Each entry represents a unique, verified signature etched into the protocol's immutable record.
+                  </p>
+                </div>
+
+                {/* TIMELINE */}
+                <div className="relative pl-8">
+                  {/* Dynamic Scroll Line (Left Aligned for density) */}
+                  <div className="absolute top-0 bottom-0 left-3 w-[2px] bg-gray-100 rounded-full z-0" />
+                  <motion.div
+                    style={{ scaleY }}
+                    className="absolute top-0 bottom-0 left-3 w-[2px] bg-blue-500 origin-top rounded-full z-0"
+                  />
+
+                  <div className="space-y-10">
+                    {chainNodes.map((node, i) => (
+                        <motion.div 
+                          key={i} 
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: i * 0.05 }}
+                          className="relative group"
+                        >
+                          {/* Bullet Point */}
+                          <div className={`absolute -left-[24px] top-1.5 w-4 h-4 rounded-full border-4 border-white ${i === chainNodes.length - 1 ? 'bg-blue-600 scale-125' : 'bg-gray-300'} z-10`} />
+                          
+                          <div className="flex flex-col gap-3">
+                            <div className="flex items-center gap-3">
+                              <span className="text-sm font-semibold text-[#202124]">
+                                Version Sign-off #{node.chain_depth || (i + 1)}
+                              </span>
+                              <span className="text-xs text-gray-400">•</span>
+                              <span className="text-xs text-gray-500 font-mono">
+                                {node.created_at ? new Date(node.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '---'}
+                              </span>
+                              {i === chainNodes.length - 1 && (
+                                <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-wider border border-blue-100">
+                                  Current Head
+                                </span>
+                              )}
+                            </div>
+                            
+                            <div className="bg-white border border-gray-200 rounded-lg p-5 hover:border-blue-400/50 transition-colors shadow-sm">
+                              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                                <div className="md:col-span-8 space-y-4">
+                                  <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Author Identity</p>
+                                    <div className="flex items-center gap-2">
+                                      <code className="text-xs font-mono text-gray-700 break-all">{node.contributor_pubkey}</code>
+                                      <button onClick={() => copyToClipboard(node.contributor_pubkey, `pub-${i}`)} className="text-gray-400 hover:text-blue-600 shrink-0">
+                                        {copiedId === `pub-${i}` ? <Check className="h-3 w-3 text-green-600" /> : <Copy className="h-3 w-3" />}
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="md:col-span-4 flex flex-col gap-4">
+                                  <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Anchor ID</p>
+                                    <code className="text-xs font-mono text-gray-500">{(node.head_hash || '').substring(0, 16)}...</code>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-green-700 text-[11px] font-bold">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-green-600" />
+                                    CRYPTOGRAPHICALLY VERIFIED
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT COLUMN: Metadata Pane / Side Rail */}
+          <aside className="w-[380px] shrink-0 space-y-6 hidden lg:block">
+            
+            {/* FILE INFO CARD */}
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+              <div className="px-5 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">File Attestation</h3>
+                <Terminal className="h-4 w-4 text-gray-400" />
+              </div>
+              <div className="p-5 space-y-5">
+                <div>
+                  <label className="text-[11px] text-gray-400 block mb-1">Chain Fingerprint</label>
+                  <p className="text-xs font-mono text-gray-600 truncate bg-gray-50 p-2 rounded border border-gray-100">{chainId}</p>
+                </div>
+                <div>
+                  <label className="text-[11px] text-gray-400 block mb-1">State</label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="flex h-2 w-2 rounded-full bg-green-500" />
+                    <span className="text-xs font-semibold text-gray-700">Anchored & Resolved</span>
+                  </div>
+                </div>
+                <div className="pt-2">
+                   <LinkIcon className="inline h-3 w-3 text-gray-400 mr-2" />
+                   <span className="text-xs text-gray-500">Total Signatures: <span className="font-bold text-gray-700">{chainNodes.length}</span></span>
+                </div>
+              </div>
+            </div>
+
+            {/* DEPENDENCIES MINI-GRID */}
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+              <div className="px-5 py-3 border-b border-gray-100 bg-gray-50">
+                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Upstream Dependencies</h3>
+              </div>
+              <div className="p-5">
+                {dependencies?.depends_on && dependencies.depends_on.length > 0 ? (
+                  <div className="space-y-3">
+                    {dependencies.depends_on.map((dep, idx) => (
+                      <a key={idx} href={`/registry/${dep}`} className="flex items-center justify-between group">
+                        <code className="text-[11px] font-mono text-blue-600 group-hover:underline">{dep.substring(0, 16)}...</code>
+                        <ArrowRight className="h-3 w-3 text-gray-300 group-hover:text-blue-500 transition-colors" />
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400 italic">No dependencies found.</p>
+                )}
+              </div>
+            </div>
+
+            {/* USED BY MINI-GRID */}
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+              <div className="px-5 py-3 border-b border-gray-100 bg-gray-50">
+                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Dependents (Downstream)</h3>
+              </div>
+              <div className="p-5">
+                {dependencies?.used_by && dependencies.used_by.length > 0 ? (
+                  <div className="space-y-3">
+                    {dependencies.used_by.map((dep, idx) => (
+                      <a key={idx} href={`/registry/${dep}`} className="flex items-center justify-between group">
+                        <code className="text-[11px] font-mono text-blue-600 group-hover:underline">{dep.substring(0, 16)}...</code>
+                        <ArrowRight className="h-3 w-3 text-gray-300 group-hover:text-blue-500 transition-colors" />
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400 italic">No dependents found.</p>
+                )}
+              </div>
+            </div>
+
+          </aside>
+        </div>
+
         <Footer />
       </main>
-    </>
   )
 }
