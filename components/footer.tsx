@@ -104,7 +104,7 @@ export function Footer() {
           <Link href="/protocol" className="text-xs transition-colors hover:text-[#1a1a1a]" style={{ color: "#aaa" }}>
             Terms
           </Link>
-          <Link href="/protocol" className="text-xs transition-colors hover:text-[#1a1a1a]" style={{ color: "#aaa" }}>
+          <Link href="/protocol#faq" className="text-xs transition-colors hover:text-[#1a1a1a]" style={{ color: "#aaa" }}>
             FAQ
           </Link>
         </div>

@@ -80,7 +80,7 @@ export default function ChainPage() {
       <main className="relative min-h-screen flex flex-col bg-[#f8f9fa] selection:bg-blue-100">
         <Header />
         
-        <div className="flex-1 max-w-5xl w-full mx-auto px-6 sm:px-8 pt-36 pb-24">
+        <div ref={timelineRef} className="flex-1 max-w-5xl w-full mx-auto px-6 sm:px-8 pt-36 pb-24">
           
           {loading ? (
             <div className="flex flex-col items-center justify-center py-32 text-blue-600 bg-white rounded-2xl border border-gray-200 shadow-sm">
@@ -122,7 +122,7 @@ export default function ChainPage() {
               </motion.div>
 
               {/* TIMELINE (Google Cloud Trace Style) */}
-              <div ref={timelineRef} className="relative space-y-8 pl-5 md:pl-0">
+              <div className="relative space-y-8 pl-5 md:pl-0">
                 
                 {/* Background Static Line */}
                 <div className="absolute top-0 bottom-0 left-5 md:left-1/2 w-[3px] bg-gray-200 md:-translate-x-1/2 rounded-full z-0" />

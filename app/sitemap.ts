@@ -13,44 +13,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: `${baseUrl}/blog`,
+      url: `${baseUrl}/protocol`,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/projects`,
+      url: `${baseUrl}/registry`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/workbench`,
+      url: `${baseUrl}/verify`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/notes`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/introduction`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
+      priority: 0.8,
     },
   ]
 
-  // Dynamic blog post routes
-  const blogRoutes = blogPosts.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(post.date),
-    changeFrequency: 'monthly' as const,
-    priority: post.featured ? 0.9 : 0.7,
-  }))
-
-  return [...staticRoutes, ...blogRoutes]
+  return [...staticRoutes]
 }
