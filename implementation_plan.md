@@ -1,32 +1,32 @@
-# Registry Page Refactoring Plan
+# Chain Details Protocol Refactoring Plan
 
-Based on my analysis of `app/registry/page.tsx` and the current state of the application, the `/registry` page currently sits as a legacy component utilizing the old "Cyberpunk/Hacker" dark theme. 
+The detailed chain view (`app/registry/[chain_id]/page.tsx`) still hosts the obsolete neon/Hacker timeline design. To complete the refactoring of the Registry portal into a unified Google Service application, this page needs a complete architectural shift and the integration of highly-refined Google/Material animations.
 
-## Current Insights & Problems
+## Proposed Architecture
 
-1. **Massive Theme Mismatch:** The registry page relies heavily on deep black backgrounds (`#0a0a0a`, `#111`), glowing neon green outlines (`#00ff9d`), and raw monospace typography. It severely breaks visual continuity with our refined "Google Docs" white-theme layout.
-2. **Missing Brand Mechanics:** It lacks the frosted glassmorphism elements, the sleek "Google Sans" typography, and the soft blue (`#e8f0fe` / `#1a73e8`) highlight palette established across the rest of the site.
-3. **Data Grid Display:** The live-fetched cryptographic modules display cleanly, but they are rendered in a high-contrast dark table instead of a sleek, white Google-Cloud style console dashboard.
+### 1. Unified Background & Layout
+- Remove `CursorGlow` and `scanlines`.
+- Change to the Google Cloud Console white/gray canvas (`bg-[#f8f9fa]`).
+- Use a `max-w-4xl` structured page container centered for deep technical reading.
 
-## Proposed Layout Redesign
+### 2. Timeline Redesign (Google Cloud Trace Style)
+The neon vertical timeline will be replaced with a clean **Google Cloud Trace / Action Log** style:
+- The vertical tracking line will be solid light gray (`bg-gray-200`).
+- The depth indicators (currently neon badges) will become clean Google-blue circular avatars (`bg-blue-100 text-blue-700`).
+- The log cards will use white boxes with soft shadows (`bg-white shadow-sm border border-gray-100`).
+- Cryptographic hashes and pub-keys will use the gray `<code/>` pills we established on the main registry (`bg-gray-100 text-gray-700`).
 
-The objective is to pivot the registry into feeling like a **Google Cloud Developer Console** or **Google Drive** file explorer. 
+### 3. "Depends On / Used By" Refactor
+- Converted into clean, tabular "Associated Resources" blocks.
+- Interactions will feature a soft grey background transition rather than glowing neon highlights.
 
-### 1. Structure & Layout
-- Change the root container to a spacious, white edge-to-edge frame (`bg-gray-50/30` or `bg-white`).
-- Constrain the maximum width naturally with generous horizontal padding, switching the grid lines to subtle light grays (`border-gray-200`).
-
-### 2. The Hero / Dashboard Header
-- Remove neon borders on the statistic cards (Modules, Contributors, Chains). 
-- Introduce a clean, minimal "white card" layout for these stats—potentially with ultra-subtle box-shadows or left-aligned border highlights to designate important metrics.
-- Soften the "Search" bar out of its neon state into a clean, pill-shaped Google Drive-style input (`bg-gray-100`, soft hover shadow).
-
-### 3. The Explorer Grid
-- Shift the actual `filteredModules` mapping from a black/neon table into a **material-design data table**.
-- Author PubKeys and File Paths will drop their raw monospace neon tags and adopt clean, pill-shaped `<code/>` or badge structures (`bg-gray-100 text-gray-800`).
-- The "VERIFIED" tags will map to Google-style Success pills (soft green background, darker green text).
+### 4. Integration of "Google Animations"
+We will use `framer-motion` to introduce Google's signature Material Design motion mechanics:
+- **Staggered Entry**: The timeline items will elegantly slide up and fade in progressively (`delay: index * 0.1`) just like a Google Workspace loading state.
+- **Elevation Physics**: Hovering over interactive cards (like Dependencies) will trigger a smooth Y-axis lift and shadow-elevation exactly mimicking Material Design 3 physics.
+- **Ripple/Pulse Call-to-Action**: The "Verify This Chain" button will drop the neon shadow and adopt the Google core Blue CTA button style, featuring an organic scale up on hover.
 
 ## User Feedback Required
 
 > [!IMPORTANT]  
-> Before I begin executing this redesign, I want to confirm: Would you like the Registry module list to look like a standard **Google Cloud Console Data Table** (clean rows, distinct header, minimalist separation lines)? And should we apply glassmorphism to the search bar like we did on the homepage CTA?
+> Do you approve of mapping the timeline out into a **Google Cloud Trace-style log** and injecting Framer Motion sequences to replicate smooth Material Design entry physics? If so, I will execute the rewrite of `[chain_id]`.
