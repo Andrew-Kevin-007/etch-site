@@ -8,22 +8,12 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import Lenis from "lenis"
 
-// Import the Antigravity particle component
 gsap.registerPlugin(ScrollTrigger)
 
-// Dynamic import for Antigravity to avoid SSR issues
 import dynamic from "next/dynamic"
-const Antigravity = dynamic(() => import("@/components/ui/antigravity"), {
+const HeroFuturisticBackground = dynamic(() => import("@/components/ui/hero-futuristic"), {
   ssr: false,
 })
-
-// Classic Google Antigravity - multicolored brand colors
-const HERO_PARTICLE_GRADIENT = [
-  "#4285F4", // Google Blue
-  "#EA4335", // Google Red
-  "#FBBC05", // Google Yellow
-  "#34A853", // Google Green
-] as const
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ANNOTATION COMPONENT - "Hand-drawn" SVG sketches and monospaced notes
@@ -317,33 +307,12 @@ export function HeroCinematic() {
         }}
       />
 
-      {/* Antigravity particle system - classic magnetic repulsion effect */}
+      {/* Futuristic WebGPU hero visual as a background layer */}
       <div
-        className="absolute inset-0 w-full h-full pointer-events-none"
+        className="absolute inset-0 w-full h-full"
         style={{ zIndex: 1 }}
       >
-        <Antigravity
-          count={450}
-          magnetRadius={18}
-          ringRadius={12}
-          waveSpeed={0.6}
-          waveAmplitude={1.2}
-          particleSize={2.2}
-          lerpSpeed={0.04}
-          colorGradient={HERO_PARTICLE_GRADIENT}
-          internalGradientStrength={0.85}
-          rimStrength={0.6}
-          glowStrength={1.2}
-          particleOpacity={0.65}
-          additiveBlend={false}
-          autoAnimate={true}
-          particleVariance={1.2}
-          rotationSpeed={0.003}
-          depthFactor={1.2}
-          pulseSpeed={1.8}
-          particleShape="sphere"
-          fieldStrength={12}
-        />
+        <HeroFuturisticBackground showOverlay={false} className="h-full w-full" />
       </div>
 
       {/* Gradient overlay for depth */}

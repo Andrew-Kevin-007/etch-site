@@ -14,7 +14,12 @@
       "Bash(pnpm dev:*)",
       "Bash(npm run:*)",
       "Bash(taskkill /PID 11764 /F)",
-      "Bash(pnpm lint:*)"
+      "Bash(pnpm lint:*)",
+      "mcp__obsidian__read_note",
+      "mcp__obsidian__get_vault_stats",
+      "mcp__obsidian__write_note",
+      "mcp__obsidian__list_directory",
+      "mcp__obsidian__patch_note"
     ]
   },
   "enabledPlugins": {
