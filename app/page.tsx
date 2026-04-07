@@ -12,7 +12,7 @@ import { TiersSection } from "@/components/tiers-section"
 
 export default function Home() {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#0a0a0f]">
+    <div className="min-h-screen overflow-x-hidden bg-white">
       <Header />
 
       {/* 1 · Hero — Cinematic dark background with immersive particles, Lenis smooth scroll */}

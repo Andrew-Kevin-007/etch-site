@@ -102,7 +102,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${geist.variable} ${geistMono.variable} ${inter.variable} ${dmSans.variable}`}>
       <body className="font-sans antialiased" suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="theme-mode">
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="theme-mode">
           {children}
         </ThemeProvider>
         <Analytics />

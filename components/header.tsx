@@ -38,7 +38,7 @@ export function Header() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
         isScrolled
-          ? "bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5"
+          ? "bg-white/80 backdrop-blur-xl border-b border-gray-200"
           : "bg-transparent"
       )}
     >
@@ -46,7 +46,7 @@ export function Header() {
         <nav className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <span className="text-xl font-bold tracking-tight text-white transition-all duration-300 group-hover:text-white/80">
+            <span className="text-xl font-bold tracking-tight text-gray-900 transition-all duration-300 group-hover:text-gray-600">
               etch
             </span>
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -66,8 +66,8 @@ export function Header() {
                   className={cn(
                     "relative text-sm font-medium transition-colors duration-300 py-2",
                     isActive(item.href)
-                      ? "text-white"
-                      : "text-white/60 hover:text-white"
+                      ? "text-gray-900"
+                      : "text-gray-500 hover:text-gray-900"
                   )}
                 >
                   {item.label}
@@ -92,7 +92,7 @@ export function Header() {
           >
             <Link
               href="/registry"
-              className="hidden sm:inline-flex h-10 items-center justify-center px-6 rounded-full text-sm font-medium transition-all hover:scale-105 bg-white text-[#0a0a0a] hover:bg-white/90 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+              className="hidden sm:inline-flex h-10 items-center justify-center px-6 rounded-full text-sm font-medium transition-all hover:scale-105 bg-[#202124] text-white hover:bg-black shadow-sm"
             >
               Install
             </Link>
