@@ -190,13 +190,13 @@ export function ProductShowcase() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="flex flex-col items-center gap-4"
         >
-          <p className="text-sm font-mono tracking-widest uppercase" style={{ color: "#555" }}>
+          <p className="text-sm font-mono tracking-widest uppercase" style={{ color: "#777" }}>
             etch protocol · v0.1.0
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-white max-w-xl leading-tight">
+          <h2 className="text-3xl md:text-4xl font-display font-medium text-white max-w-xl leading-tight">
             See how etch seals your identity into every commit
           </h2>
-          <p className="text-base max-w-md leading-relaxed" style={{ color: "#666" }}>
+          <p className="text-base font-sans max-w-md leading-relaxed" style={{ color: "#999" }}>
             Every signature is cryptographically bound to your Ed25519 keypair and
             anchored in an append-only public registry.
           </p>
@@ -206,7 +206,7 @@ export function ProductShowcase() {
             href="/protocol"
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
-            className="mt-2 inline-flex items-center gap-3 px-6 py-3 rounded-full font-semibold text-sm"
+            className="mt-2 inline-flex items-center gap-3 px-6 py-3 rounded-full font-medium text-sm"
             style={{
               background: "rgba(255,255,255,0.07)",
               color: "#fff",

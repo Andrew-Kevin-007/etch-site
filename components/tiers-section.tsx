@@ -49,14 +49,14 @@ export function TiersSection() {
           className="text-center mb-16"
         >
           <h2
-            className="font-bold leading-tight mb-4"
+            className="font-display font-medium leading-tight mb-4"
             style={{ fontSize: "clamp(28px, 5vw, 44px)", color: "#1a1a1a" }}
           >
             Built for developers.
             <br />
             Trusted by open source.
           </h2>
-          <p className="text-lg max-w-lg mx-auto" style={{ color: "#5f6368" }}>
+          <p className="text-lg font-sans max-w-lg mx-auto" style={{ color: "#5f6368" }}>
             etch is free and open source. No paywalls on provenance.
           </p>
         </motion.div>
@@ -79,15 +79,15 @@ export function TiersSection() {
           >
             <div>
               <span
-                className="inline-block text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full mb-4"
+                className="inline-block text-xs font-medium uppercase tracking-widest px-3 py-1 rounded-full mb-4"
                 style={{ background: "#f0f7ff", color: "#4285f4" }}
               >
                 Available at no charge
               </span>
-              <h3 className="text-2xl font-bold leading-tight mb-1" style={{ color: "#1a1a1a" }}>
+              <h3 className="text-2xl font-display font-medium leading-tight mb-1" style={{ color: "#1a1a1a" }}>
                 For developers
               </h3>
-              <p className="text-base font-medium" style={{ color: "#5f6368" }}>
+              <p className="text-base font-sans font-normal" style={{ color: "#5f6368" }}>
                 Achieve new heights
               </p>
             </div>
@@ -108,7 +108,7 @@ export function TiersSection() {
 
             <Link
               href="/registry"
-              className="inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-full font-semibold text-sm text-white transition-all hover:-translate-y-0.5 hover:opacity-90"
+              className="inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-full font-medium text-sm text-white transition-all hover:-translate-y-0.5 hover:opacity-90"
               style={{ background: "#202124" }}
             >
               <Download className="w-4 h-4" />
@@ -132,15 +132,15 @@ export function TiersSection() {
           >
             <div>
               <span
-                className="inline-block text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full mb-4"
+                className="inline-block text-xs font-medium uppercase tracking-widest px-3 py-1 rounded-full mb-4"
                 style={{ background: "#f0f7ff", color: "#888" }}
               >
                 Coming soon
               </span>
-              <h3 className="text-2xl font-bold leading-tight mb-1" style={{ color: "#1a1a1a" }}>
+              <h3 className="text-2xl font-display font-medium leading-tight mb-1" style={{ color: "#1a1a1a" }}>
                 For open source
               </h3>
-              <p className="text-base font-medium" style={{ color: "#5f6368" }}>
+              <p className="text-base font-sans font-normal" style={{ color: "#5f6368" }}>
                 Protect your contributors
               </p>
             </div>

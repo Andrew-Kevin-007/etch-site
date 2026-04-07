@@ -30,7 +30,7 @@ const footerNav = [
 
 export function Footer() {
   return (
-    <footer style={{ background: "#f0f4ff", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
+    <footer style={{ background: "#ffffff", borderTop: "1px solid rgba(0,0,0,0.05)" }}>
       {/* Nav columns */}
       <div className="max-w-7xl mx-auto px-6 pt-16 pb-10">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-10">

@@ -4,7 +4,17 @@
       "mcp__21st-magic__21st_magic_component_inspiration",
       "Bash(npm install:*)",
       "Bash(claude mcp:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "WebSearch",
+      "WebFetch(domain:antigravity.google)",
+      "Bash(npm list:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(npm run:*)",
+      "Bash(taskkill /PID 11764 /F)",
+      "Bash(pnpm lint:*)"
     ]
   },
   "enabledPlugins": {

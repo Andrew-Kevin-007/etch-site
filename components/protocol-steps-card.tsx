@@ -49,12 +49,12 @@ export function ProtocolStepsCard() {
           className="text-center space-y-4"
         >
           <h2
-            className="font-bold leading-tight"
+            className="font-display font-medium leading-tight"
             style={{ fontSize: "clamp(28px, 5vw, 44px)", color: "#1a1a1a" }}
           >
             Three Commands. Permanent Proof.
           </h2>
-          <p className="max-w-lg mx-auto text-lg leading-relaxed" style={{ color: "#5f6368" }}>
+          <p className="max-w-lg mx-auto font-sans text-lg leading-relaxed font-normal" style={{ color: "#5f6368" }}>
             A more intuitive approach to code provenance — presenting you with
             cryptographic certainty every step of the way.
           </p>

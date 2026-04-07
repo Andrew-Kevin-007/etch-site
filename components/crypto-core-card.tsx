@@ -92,12 +92,12 @@ export function CryptoCoreCard() {
           className="text-center space-y-4"
         >
           <h2
-            className="font-bold leading-tight"
+            className="font-display font-medium leading-tight"
             style={{ fontSize: "clamp(28px, 5vw, 44px)", color: "#1a1a1a" }}
           >
             A Cryptographic Core
           </h2>
-          <p className="max-w-lg mx-auto text-lg leading-relaxed" style={{ color: "#5f6368" }}>
+          <p className="max-w-lg mx-auto font-sans text-lg leading-relaxed font-normal" style={{ color: "#5f6368" }}>
             etch uses Ed25519 keypairs to anchor every file state to a verified human identity.
             Your private key never leaves your machine.
           </p>

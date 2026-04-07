@@ -83,7 +83,9 @@
 }
 
 @theme inline {
-  /* DM Sans as primary UI font (closest to Google Sans) */
+  /* Inter for headers/display (closest to Google Sans) */
+  --font-display: var(--font-inter), "Inter", "system-ui", sans-serif;
+  /* DM Sans for UI and secondary headings */
   --font-sans: var(--font-dm-sans), "DM Sans", var(--font-geist), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), "Geist Mono", "Geist Mono Fallback", monospace;
   --color-background: var(--background);

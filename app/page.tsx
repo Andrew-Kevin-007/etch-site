@@ -2,7 +2,7 @@
 
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { HeroSection } from "@/components/hero-section"
+import { HeroCinematic } from "@/components/hero-cinematic"
 import { FeatureIconsRow } from "@/components/feature-icons-row"
 import { ProductShowcase } from "@/components/product-showcase"
 import { CryptoCoreCard } from "@/components/crypto-core-card"
@@ -12,11 +12,11 @@ import { TiersSection } from "@/components/tiers-section"
 
 export default function Home() {
   return (
-    <div className="min-h-screen overflow-x-hidden" style={{ background: "#f0f4ff" }}>
+    <div className="min-h-screen overflow-x-hidden" style={{ background: "#ffffff" }}>
       <Header />
 
-      {/* 1 · Hero — centered, light blue bg, interactive repulsion particles */}
-      <HeroSection />
+      {/* 1 · Hero — Cinematic dark background with GSAP SplitText, particle ring, Lenis smooth scroll */}
+      <HeroCinematic />
 
       {/* 2 · Feature Icons Row — wavy horizontal icon strip */}
       <FeatureIconsRow />
