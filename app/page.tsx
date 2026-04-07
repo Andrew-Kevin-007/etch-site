@@ -12,16 +12,16 @@ import { TiersSection } from "@/components/tiers-section"
 
 export default function Home() {
   return (
-    <div className="min-h-screen overflow-x-hidden" style={{ background: "#ffffff" }}>
+    <div className="min-h-screen overflow-x-hidden bg-[#0a0a0f]">
       <Header />
 
-      {/* 1 · Hero — Cinematic dark background with GSAP SplitText, particle ring, Lenis smooth scroll */}
+      {/* 1 · Hero — Cinematic dark background with immersive particles, Lenis smooth scroll */}
       <HeroCinematic />
 
       {/* 2 · Feature Icons Row — wavy horizontal icon strip */}
       <FeatureIconsRow />
 
-      {/* 3 · Product Showcase — black section with colored etch dot-logo */}
+      {/* 3 · Product Showcase — dark section with colored etch dot-logo */}
       <ProductShowcase />
 
       {/* 4 · Cryptographic Core — card with terminal mockup */}
