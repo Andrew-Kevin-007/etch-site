@@ -5,7 +5,15 @@ import { useParams } from "next/navigation"
 import { Loader2, ShieldCheck, Copy, Check, Terminal, Link as LinkIcon, Database, ArrowRight } from "lucide-react" 
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { motion } from "framer-motion"
+import { motion, useScroll, useSpring } from "framer-motion"
+import { useRef } from "react"
+
+const GOOGLE_COLORS = [
+  { bg: "bg-[#e8f0fe]", text: "text-[#1a73e8]", border: "border-[#1a73e8]/20", ring: "ring-[#1a73e8]/20" },
+  { bg: "bg-[#fce8e6]", text: "text-[#d93025]", border: "border-[#d93025]/20", ring: "ring-[#d93025]/20" },
+  { bg: "bg-[#fef7e0]", text: "text-[#f9ab00]", border: "border-[#f9ab00]/20", ring: "ring-[#f9ab00]/20" },
+  { bg: "bg-[#e6f4ea]", text: "text-[#1e8e3e]", border: "border-[#1e8e3e]/20", ring: "ring-[#1e8e3e]/20" },
+]
 
 export default function ChainPage() {
   const params = useParams()
@@ -15,6 +23,17 @@ export default function ChainPage() {
   const [dependencies, setDependencies] = useState<{ depends_on: string[], used_by: string[] } | null>(null)
   const [loading, setLoading] = useState(true)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  
+  const timelineRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: timelineRef,
+    offset: ["start center", "end center"],
+  })
+  const scaleY = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  })
 
   const copyToClipboard = (text: string, id: string) => {
     if (!text) return
@@ -103,8 +122,20 @@ export default function ChainPage() {
               </motion.div>
 
               {/* TIMELINE (Google Cloud Trace Style) */}
-              <div className="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gray-200">
-                {chainNodes.map((node, i) => (
+              <div ref={timelineRef} className="relative space-y-8 pl-5 md:pl-0">
+                
+                {/* Background Static Line */}
+                <div className="absolute top-0 bottom-0 left-5 md:left-1/2 w-[3px] bg-gray-200 md:-translate-x-1/2 rounded-full z-0" />
+                
+                {/* Animated Scroll Line */}
+                <motion.div
+                  style={{ scaleY }}
+                  className="absolute top-0 bottom-0 left-5 md:left-1/2 w-[3px] bg-gradient-to-b from-[#1a73e8] via-[#ea4335] to-[#34a853] origin-top md:-translate-x-1/2 rounded-full z-0"
+                />
+
+                {chainNodes.map((node, i) => {
+                  const color = GOOGLE_COLORS[i % GOOGLE_COLORS.length];
+                  return (
                   <motion.div 
                     key={i} 
                     initial={{ opacity: 0, y: 20 }}
@@ -114,7 +145,7 @@ export default function ChainPage() {
                   >
                     
                     {/* Center Node Avatar */}
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-[#f8f9fa] bg-blue-50 text-blue-600 font-mono text-sm font-semibold shadow-sm shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 relative z-10">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 border-[#f8f9fa] ${color.bg} ${color.text} font-mono text-sm font-semibold shadow-sm shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 relative z-10 transition-transform duration-300 group-hover:scale-110`}>
                       {node.chain_depth || (i + 1)}
                     </div>
                     
@@ -161,7 +192,7 @@ export default function ChainPage() {
                       </div>
                     </div>
                   </motion.div>
-                ))}
+                )})}
               </div>
 
               {/* CHAIN HEAD HASH BANNER */}

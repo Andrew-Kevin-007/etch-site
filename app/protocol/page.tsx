@@ -72,10 +72,17 @@ export default function ProtocolDocs() {
               <button onClick={() => scrollTo('signature-policy')} className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md text-[#3c4043] hover:bg-gray-100/50">Signature Policy</button>
             </nav>
             
-            <h3 className="text-gray-500 font-semibold text-xs tracking-wider uppercase mt-8 mb-4 ml-3">Tooling</h3>
+            <h3 className="text-gray-500 font-semibold text-xs tracking-wider uppercase mt-8 mb-4 ml-3">Ecosystem</h3>
+            <nav className="flex flex-col space-y-0.5">
+              <button onClick={() => scrollTo('ci-cd-integration')} className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md text-[#3c4043] hover:bg-gray-100/50">CI/CD Integration</button>
+              <button onClick={() => scrollTo('editor-extensions')} className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md text-[#3c4043] hover:bg-gray-100/50">Editor Extensions</button>
+            </nav>
+            
+            <h3 className="text-gray-500 font-semibold text-xs tracking-wider uppercase mt-8 mb-4 ml-3">Reference</h3>
             <nav className="flex flex-col space-y-0.5">
               <button className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md text-[#3c4043] hover:bg-gray-100/50">CLI Reference</button>
               <button className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md text-[#3c4043] hover:bg-gray-100/50">API Endpoints</button>
+              <button onClick={() => scrollTo('faq')} className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md text-[#3c4043] hover:bg-gray-100/50">FAQ</button>
             </nav>
           </div>
         </aside>
@@ -215,6 +222,76 @@ export default function ProtocolDocs() {
                 </div>
               </section>
 
+              {/* CI/CD INTEGRATIONS */}
+              <section id="ci-cd-integration" className="scroll-mt-[100px]">
+                <h2 className="text-[26px] font-normal text-[#202124] tracking-tight mb-4 border-b border-gray-100 pb-2">CI/CD Integration (Draft)</h2>
+                <div className="text-[16px] text-[#3c4043] font-normal leading-[1.65] space-y-4">
+                  <p>
+                    Integrating ETCH directly into your CI/CD pipelines ensures that all merged code has verified human provenance. The <code className={INLINE_CODE}>etch-github-action</code> works alongside standard gating checks.
+                  </p>
+                  <p>
+                    When a pull request is opened, the ETCH validator calculates the logic and architectural weight. If signatures are missing or invalid, the CI runner fails. Teams can configure fallback thresholds when a mix of AI-generated boilerplate and human-verified core logic is permitted.
+                  </p>
+                </div>
+              </section>
+
+              {/* EDITOR EXTENSIONS */}
+              <section id="editor-extensions" className="scroll-mt-[100px]">
+                <h2 className="text-[26px] font-normal text-[#202124] tracking-tight mb-4 border-b border-gray-100 pb-2">Editor Extensions (Draft)</h2>
+                <div className="text-[16px] text-[#3c4043] font-normal leading-[1.65] space-y-4">
+                  <p>
+                    To reduce friction, ETCH integrates closely with the places where you write code. Local signing is supported via VS Code and JetBrains extension plugins.
+                  </p>
+                  <ul className="list-disc list-outside ml-5 space-y-2">
+                    <li><strong>Real-time Validation:</strong> See a visual overlay indicating which functions lack a valid authorship block.</li>
+                    <li><strong>Hardware Token Passthrough:</strong> Directly sign buffer contents utilizing YubiKey or built-in biometrics (Touch ID / Windows Hello) without leaving the editor.</li>
+                  </ul>
+                </div>
+              </section>
+
+              {/* FAQ */}
+              <section id="faq" className="scroll-mt-[100px]">
+                <h2 className="text-[26px] font-normal text-[#202124] tracking-tight mb-6 border-b border-gray-100 pb-2">Frequently Asked Questions</h2>
+                
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#202124] mb-1">What exactly does the ETCH protocol do?</h3>
+                    <p className="text-[15px] text-[#3c4043] leading-relaxed">
+                      ETCH cryptographically verifies human authorship of code modules. It creates an immutable action trace representing your development history, permanently proving you (and not an autonomous agent) authored the underlying logic.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#202124] mb-1">Can an AI agent impersonate a human signer?</h3>
+                    <p className="text-[15px] text-[#3c4043] leading-relaxed">
+                      No. ETCH's strict mode requires an offline, physical hardware-based (or local secure enclave) human private key assertion. Autonomous AI agents lack this physical layer and cannot forge human provenance.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#202124] mb-1">How does the network score my contributions?</h3>
+                    <p className="text-[15px] text-[#3c4043] leading-relaxed">
+                      Contributions must exceed a 0.6 minimum threshold score based on Logic Weight (40%), Architecture Weight (30%), and Complexity Weight (20%). High-value semantic changes are rewarded, while spam and dead code are penalized.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#202124] mb-1">How do I gain access to the API?</h3>
+                    <p className="text-[15px] text-[#3c4043] leading-relaxed">
+                      During the current rollout phase, direct API access to the ETCH network is restricted to verified enterprise contributors holding a valid <code className={INLINE_CODE}>.env</code> verification token.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#202124] mb-1">How does this differ from simple PGP Git signing?</h3>
+                    <p className="text-[15px] text-[#3c4043] leading-relaxed">
+                      Standard Git signatures assert that a commit was made by your key, but not whether the contents were auto-generated. ETCH evaluates the semantics of the AST (Abstract Syntax Tree) alongside the signature binding, anchoring deep, structural logic to an individual.
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+
             </div>
 
           </div>
@@ -256,6 +333,30 @@ export default function ProtocolDocs() {
                 className={`block w-full text-left py-1.5 pl-4 border-l-2 text-[13px] ${activeSection === 'signature-policy' ? 'border-[#1a73e8] text-[#1a73e8] font-medium' : 'border-gray-200 text-[#5f6368] hover:text-[#202124]'}`}
               >
                 Signature Policy
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => scrollTo('ci-cd-integration')} 
+                className={`block w-full text-left py-1.5 pl-4 border-l-2 text-[13px] ${activeSection === 'ci-cd-integration' ? 'border-[#1a73e8] text-[#1a73e8] font-medium' : 'border-gray-200 text-[#5f6368] hover:text-[#202124]'}`}
+              >
+                CI/CD Integration
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => scrollTo('editor-extensions')} 
+                className={`block w-full text-left py-1.5 pl-4 border-l-2 text-[13px] ${activeSection === 'editor-extensions' ? 'border-[#1a73e8] text-[#1a73e8] font-medium' : 'border-gray-200 text-[#5f6368] hover:text-[#202124]'}`}
+              >
+                Editor Extensions
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => scrollTo('faq')} 
+                className={`block w-full text-left py-1.5 pl-4 border-l-2 text-[13px] ${activeSection === 'faq' ? 'border-[#1a73e8] text-[#1a73e8] font-medium' : 'border-gray-200 text-[#5f6368] hover:text-[#202124]'}`}
+              >
+                FAQ
               </button>
             </li>
           </ul>
