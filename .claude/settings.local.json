@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "mcp__21st-magic__21st_magic_component_inspiration",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(claude mcp:*)",
+      "Bash(curl:*)"
     ]
   },
   "enabledPlugins": {

@@ -1,6 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Bloom, EffectComposer } from '@react-three/postprocessing';
 import React, { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
@@ -16,6 +17,7 @@ interface AntigravityProps {
   colorGradient?: readonly string[];
   internalGradientStrength?: number;
   rimStrength?: number;
+  glowStrength?: number;
   particleOpacity?: number;
   additiveBlend?: boolean;
   autoAnimate?: boolean;
@@ -44,10 +46,43 @@ interface InternalParticle {
   vy: number;
   vz: number;
   randomRadiusOffset: number;
-  color: THREE.Color;
+  colorStart: THREE.Color;
+  colorEnd: THREE.Color;
+  seed: number;
 }
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
+
+const WHITE_COLOR = new THREE.Color('#ffffff');
+
+const getParticleGradientPair = (stops: THREE.Color[]) => {
+  if (stops.length === 0) {
+    return [new THREE.Color('#4285f4'), new THREE.Color('#34a853')] as const;
+  }
+
+  if (stops.length === 1) {
+    const start = stops[0].clone().multiplyScalar(0.72 + Math.random() * 0.18);
+    const end = stops[0].clone().lerp(WHITE_COLOR, 0.18 + Math.random() * 0.18);
+    return [start, end] as const;
+  }
+
+  const startIndex = Math.floor(Math.random() * stops.length);
+  const maxOffset = Math.min(2, stops.length - 1);
+  const offset = 1 + Math.floor(Math.random() * maxOffset);
+  const endIndex = (startIndex + offset) % stops.length;
+
+  const start = stops[startIndex].clone();
+  const end = stops[endIndex].clone();
+
+  const crossBlend = Math.random() * 0.18;
+  const startVividness = 0.78 + Math.random() * 0.22;
+  const endHighlight = 0.12 + Math.random() * 0.18;
+
+  start.lerp(end, crossBlend).multiplyScalar(startVividness);
+  end.lerp(WHITE_COLOR, endHighlight);
+
+  return [start, end] as const;
+};
 
 const interpolateGradientColor = (stops: THREE.Color[], t: number) => {
   if (stops.length === 0) {
@@ -67,17 +102,27 @@ const interpolateGradientColor = (stops: THREE.Color[], t: number) => {
 };
 
 const PARTICLE_VERTEX_SHADER = `
-  varying vec3 vInstanceColor;
+  attribute vec3 instanceColorStart;
+  attribute vec3 instanceColorEnd;
+  attribute float instanceSeed;
+
+  varying vec3 vColorStart;
+  varying vec3 vColorEnd;
+  varying float vSeed;
   varying vec3 vLocalPos;
+  varying vec2 vUv;
   varying vec3 vNormalDir;
   varying vec3 vViewDir;
 
   void main() {
-    vInstanceColor = instanceColor;
+    vColorStart = instanceColorStart;
+    vColorEnd = instanceColorEnd;
+    vSeed = instanceSeed;
     vLocalPos = position;
+    vUv = uv;
 
     vec4 worldPosition = modelMatrix * instanceMatrix * vec4(position, 1.0);
-    mat3 worldNormalMatrix = mat3(modelMatrix * instanceMatrix);
+    mat3 worldNormalMatrix = mat3(transpose(inverse(modelMatrix * instanceMatrix)));
 
     vNormalDir = normalize(worldNormalMatrix * normal);
     vViewDir = normalize(cameraPosition - worldPosition.xyz);
@@ -90,28 +135,37 @@ const PARTICLE_FRAGMENT_SHADER = `
   uniform float uTime;
   uniform float uGradientStrength;
   uniform float uRimStrength;
+  uniform float uGlowStrength;
   uniform float uOpacity;
 
-  varying vec3 vInstanceColor;
+  varying vec3 vColorStart;
+  varying vec3 vColorEnd;
+  varying float vSeed;
   varying vec3 vLocalPos;
+  varying vec2 vUv;
   varying vec3 vNormalDir;
   varying vec3 vViewDir;
 
   void main() {
-    float heightGradient = clamp(vLocalPos.y * 1.8 + 0.5, 0.0, 1.0);
-    float depthGradient = clamp(1.0 - abs(vLocalPos.z) * 2.2, 0.0, 1.0);
-    float innerGlow = pow(clamp(1.0 - length(vLocalPos.xy) * 2.4, 0.0, 1.0), 1.35);
+    float gradientAxis = clamp(vUv.y + sin(uTime * 1.6 + vSeed * 6.28318 + vUv.x * 9.0) * 0.07, 0.0, 1.0);
+    vec3 gradientColor = mix(vColorStart, vColorEnd, gradientAxis);
 
-    float shimmer = 0.92 + 0.08 * sin(uTime * 1.8 + vLocalPos.x * 8.0 + vLocalPos.y * 6.0);
-    float fresnel = pow(1.0 - max(dot(normalize(vNormalDir), normalize(vViewDir)), 0.0), 2.2);
+    vec2 centeredUv = vUv - 0.5;
+    float radialFalloff = length(centeredUv * vec2(1.05, 1.35));
+    float innerCore = smoothstep(0.72, 0.1, radialFalloff);
+    float depthGradient = clamp(1.0 - abs(vLocalPos.z) * 2.1, 0.0, 1.0);
+    float innerGlow = pow(clamp(1.0 - radialFalloff, 0.0, 1.0), 1.25);
 
-    float shadedBody = mix(0.58, 1.22, heightGradient) * mix(0.82, 1.18, depthGradient);
-    vec3 baseColor = vInstanceColor * shadedBody * shimmer;
-    vec3 internalGradient = vInstanceColor * innerGlow * uGradientStrength;
-    vec3 rimGlow = vInstanceColor * fresnel * uRimStrength;
+    float shimmer = 0.9 + 0.1 * sin(uTime * 1.5 + vSeed * 9.0 + vUv.x * 8.0);
+    float fresnel = pow(1.0 - max(dot(normalize(vNormalDir), normalize(vViewDir)), 0.0), 2.0);
 
-    vec3 finalColor = baseColor + internalGradient + rimGlow;
-    float alpha = clamp((0.32 + innerGlow * 0.45 + fresnel * 0.25) * uOpacity, 0.0, 1.0);
+    vec3 baseColor = gradientColor * mix(0.7, 1.2, depthGradient) * shimmer;
+    vec3 highlightColor = mix(baseColor, vec3(1.0), 0.18 + innerCore * 0.22);
+    vec3 internalGradient = gradientColor * innerGlow * uGradientStrength;
+    vec3 rimGlow = gradientColor * fresnel * uRimStrength;
+
+    vec3 finalColor = highlightColor + (internalGradient + rimGlow) * uGlowStrength;
+    float alpha = clamp((0.25 + innerGlow * 0.5 + fresnel * 0.22) * uOpacity, 0.0, 1.0);
 
     gl_FragColor = vec4(finalColor, alpha);
   }
@@ -127,9 +181,10 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
   lerpSpeed = 0.1,
   color = '#4285f4',
   colorGradient,
-  internalGradientStrength = 0.6,
-  rimStrength = 0.55,
-  particleOpacity = 0.75,
+  internalGradientStrength = 0.78,
+  rimStrength = 0.5,
+  glowStrength = 1,
+  particleOpacity = 0.72,
   additiveBlend = true,
   autoAnimate = false,
   particleVariance = 1,
@@ -146,8 +201,16 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
   const lastMousePos = useRef({ x: 0, y: 0 });
   const lastMouseMoveTime = useRef(0);
   const virtualMouse = useRef({ x: 0, y: 0 });
-  const instanceColorAttribute = useMemo(
+  const instanceColorStartAttribute = useMemo(
     () => new THREE.InstancedBufferAttribute(new Float32Array(count * 3), 3),
+    [count]
+  );
+  const instanceColorEndAttribute = useMemo(
+    () => new THREE.InstancedBufferAttribute(new Float32Array(count * 3), 3),
+    [count]
+  );
+  const instanceSeedAttribute = useMemo(
+    () => new THREE.InstancedBufferAttribute(new Float32Array(count), 1),
     [count]
   );
 
@@ -156,9 +219,10 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
       uTime: { value: 0 },
       uGradientStrength: { value: internalGradientStrength },
       uRimStrength: { value: rimStrength },
+      uGlowStrength: { value: glowStrength },
       uOpacity: { value: particleOpacity }
     }),
-    [internalGradientStrength, rimStrength, particleOpacity]
+    [internalGradientStrength, rimStrength, glowStrength, particleOpacity]
   );
 
   const gradientKey = useMemo(() => {
@@ -193,8 +257,11 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
       const indexT = count > 1 ? i / (count - 1) : 0;
       const spreadOffset = (Math.random() - 0.5) * 0.55;
       const gradientT = clamp01(indexT + spreadOffset);
-      const particleColor = interpolateGradientColor(gradientStops, gradientT);
-      particleColor.multiplyScalar(0.82 + Math.random() * 0.32);
+      const mixedColor = interpolateGradientColor(gradientStops, gradientT);
+      const [colorStart, colorEnd] = getParticleGradientPair(gradientStops);
+      colorStart.lerp(mixedColor, 0.2 + Math.random() * 0.2);
+      colorEnd.lerp(mixedColor, Math.random() * 0.12);
+      const seed = Math.random();
 
       temp.push({
         t,
@@ -213,7 +280,9 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
         vy: 0,
         vz: 0,
         randomRadiusOffset,
-        color: particleColor
+        colorStart,
+        colorEnd,
+        seed
       });
     }
 
@@ -224,14 +293,36 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
     const mesh = meshRef.current;
     if (!mesh) return;
 
+    mesh.geometry.setAttribute('instanceColorStart', instanceColorStartAttribute);
+    mesh.geometry.setAttribute('instanceColorEnd', instanceColorEndAttribute);
+    mesh.geometry.setAttribute('instanceSeed', instanceSeedAttribute);
+
     particles.forEach((particle, index) => {
-      mesh.setColorAt(index, particle.color);
+      instanceColorStartAttribute.setXYZ(
+        index,
+        particle.colorStart.r,
+        particle.colorStart.g,
+        particle.colorStart.b
+      );
+      instanceColorEndAttribute.setXYZ(
+        index,
+        particle.colorEnd.r,
+        particle.colorEnd.g,
+        particle.colorEnd.b
+      );
+      instanceSeedAttribute.setX(index, particle.seed);
     });
 
-    if (mesh.instanceColor) {
-      mesh.instanceColor.needsUpdate = true;
-    }
-  }, [particles]);
+    instanceColorStartAttribute.needsUpdate = true;
+    instanceColorEndAttribute.needsUpdate = true;
+    instanceSeedAttribute.needsUpdate = true;
+  }, [
+    instanceColorEndAttribute,
+    instanceColorStartAttribute,
+    instanceSeedAttribute,
+    particleShape,
+    particles
+  ]);
 
   useFrame(state => {
     const mesh = meshRef.current;
@@ -318,11 +409,7 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
   });
 
   return (
-    <instancedMesh
-      ref={meshRef}
-      args={[undefined, undefined, count]}
-      instanceColor={instanceColorAttribute}
-    >
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
       {particleShape === 'capsule' && <capsuleGeometry args={[0.1, 0.4, 4, 8]} />}
       {particleShape === 'sphere' && <sphereGeometry args={[0.2, 16, 16]} />}
       {particleShape === 'box' && <boxGeometry args={[0.3, 0.3, 0.3]} />}
@@ -343,8 +430,20 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
 
 const Antigravity: React.FC<AntigravityProps> = props => {
   return (
-    <Canvas camera={{ position: [0, 0, 50], fov: 35 }}>
+    <Canvas
+      camera={{ position: [0, 0, 50], fov: 35 }}
+      dpr={[1, 1.75]}
+      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+    >
       <AntigravityInner {...props} />
+      <EffectComposer enableNormalPass={false} multisampling={0}>
+        <Bloom
+          intensity={0.58}
+          luminanceThreshold={0.02}
+          luminanceSmoothing={0.72}
+          mipmapBlur
+        />
+      </EffectComposer>
     </Canvas>
   );
 };

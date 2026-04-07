@@ -86,17 +86,18 @@ export function HeroSection() {
       {/* Interactive repulsion particles */}
       <div className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
         <Antigravity
-          count={300}
-          magnetRadius={9}
-          ringRadius={7}
-          waveSpeed={0.4}
-          waveAmplitude={1}
-          particleSize={1.5}
-          lerpSpeed={0.05}
+          count={380}
+          magnetRadius={10}
+          ringRadius={7.6}
+          waveSpeed={0.46}
+          waveAmplitude={1.05}
+          particleSize={1.58}
+          lerpSpeed={0.06}
           colorGradient={HERO_PARTICLE_GRADIENT}
-          internalGradientStrength={0.62}
-          rimStrength={0.58}
-          particleOpacity={0.72}
+          internalGradientStrength={0.82}
+          rimStrength={0.54}
+          glowStrength={1.05}
+          particleOpacity={0.7}
           additiveBlend
           autoAnimate
           particleVariance={1}
