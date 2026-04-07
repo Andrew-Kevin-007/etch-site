@@ -48,18 +48,22 @@ export default function ProtocolDocs() {
         {/* =======================
             LEFT Nav Sidebar
             ======================= */}
-        <aside className="hidden lg:block w-[280px] shrink-0 sticky top-[72px] h-[calc(100vh-72px)] overflow-y-auto pb-10">
+        <aside 
+          data-lenis-prevent 
+          className="hidden lg:block w-[280px] shrink-0 sticky top-[72px] h-[calc(100vh-72px)] overflow-y-auto pb-10 border-r border-gray-100"
+        >
           <div className="pl-6 pr-4 pt-8">
             <h3 className="text-gray-500 font-semibold text-xs tracking-wider uppercase mb-4 ml-3">Protocol</h3>
             <nav className="flex flex-col space-y-0.5">
               <button 
                 onClick={() => scrollTo('overview')} 
-                className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md bg-[#e8f0fe] text-[#1a73e8]"
+                className={`text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md transition-colors ${activeSection === 'overview' ? 'bg-[#e8f0fe] text-[#1a73e8]' : 'text-[#3c4043] hover:bg-gray-100/50'}`}
               >
                 Getting Started
               </button>
               <button 
-                className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md text-[#3c4043] hover:bg-gray-100/50"
+                onClick={() => scrollTo('core-concepts')}
+                className={`text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md transition-colors ${activeSection === 'core-concepts' ? 'bg-[#e8f0fe] text-[#1a73e8]' : 'text-[#3c4043] hover:bg-gray-100/50'}`}
               >
                 Core Concepts
               </button>
@@ -74,9 +78,10 @@ export default function ProtocolDocs() {
             
             <h3 className="text-gray-500 font-semibold text-xs tracking-wider uppercase mt-8 mb-4 ml-3">Ecosystem</h3>
             <nav className="flex flex-col space-y-0.5">
-              <button onClick={() => scrollTo('ci-cd-integration')} className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md text-[#3c4043] hover:bg-gray-100/50">CI/CD Integration</button>
-              <button onClick={() => scrollTo('editor-extensions')} className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md text-[#3c4043] hover:bg-gray-100/50">Editor Extensions</button>
-              <button onClick={() => scrollTo('enterprise-security')} className="text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md text-[#3c4043] hover:bg-gray-100/50">Enterprise Security</button>
+              <button onClick={() => scrollTo('ci-cd-integration')} className={`text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md transition-colors ${activeSection === 'ci-cd-integration' ? 'bg-[#e8f0fe] text-[#1a73e8]' : 'text-[#3c4043] hover:bg-gray-100/50'}`}>CI/CD Integration</button>
+              <button onClick={() => scrollTo('editor-extensions')} className={`text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md transition-colors ${activeSection === 'editor-extensions' ? 'bg-[#e8f0fe] text-[#1a73e8]' : 'text-[#3c4043] hover:bg-gray-100/50'}`}>Editor Extensions</button>
+              <button onClick={() => scrollTo('enterprise-security')} className={`text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md transition-colors ${activeSection === 'enterprise-security' ? 'bg-[#e8f0fe] text-[#1a73e8]' : 'text-[#3c4043] hover:bg-gray-100/50'}`}>Enterprise Security</button>
+              <button onClick={() => scrollTo('roadmap')} className={`text-left w-full px-4 py-2 text-[14px] font-medium rounded-r-3xl rounded-l-md transition-colors ${activeSection === 'roadmap' ? 'bg-[#e8f0fe] text-[#1a73e8]' : 'text-[#3c4043] hover:bg-gray-100/50'}`}>Roadmap</button>
             </nav>
             
             <h3 className="text-gray-500 font-semibold text-xs tracking-wider uppercase mt-8 mb-4 ml-3">Reference</h3>
@@ -119,6 +124,9 @@ export default function ProtocolDocs() {
                   <p>
                     ETCH is a cryptographic authorship protocol designed for the modern continuous-intelligence era. While automated agents can rapidly generate and refactor software modules, only verified human counterparts are authorized to cryptographically seal the artifact via the <code className={INLINE_CODE}>etch-v1</code> spec.
                   </p>
+                  <p>
+                    By anchoring structural logic to a verified hardware-backed identity, ETCH provides a "proof-of-human" layer for the world's most critical open-source and internal software registries.
+                  </p>
                   
                   {/* Google-tier Info Callout */}
                   <div className="mt-6 p-5 bg-[#e8f0fe] rounded-r-lg border-l-4 border-[#1a73e8]">
@@ -126,6 +134,34 @@ export default function ProtocolDocs() {
                     <p className="text-sm text-[#3c4043] leading-relaxed">
                       Protocol internals and direct access to cryptographic primitives are strictly restricted to verified contributors possessing a valid enterprise token. Please ensure your <code className={INLINE_CODE}>.env</code> has been properly provisioned before querying the API.
                     </p>
+                  </div>
+                </div>
+              </section>
+
+              {/* CORE CONCEPTS */}
+              <section id="core-concepts" className="scroll-mt-[100px]">
+                <h2 className="text-[26px] font-normal text-[#202124] tracking-tight mb-4 border-b border-gray-100 pb-2">Core Concepts</h2>
+                <div className="text-[16px] text-[#3c4043] font-normal leading-[1.65] space-y-8">
+                  <div>
+                    <h3 className="text-[18px] font-medium text-[#202124] mb-3 tracking-tight">Authorship Attribution Logic</h3>
+                    <p>
+                      ETCH utilizes specialized <strong>Abstract Syntax Tree (AST) Fingerprinting</strong> to distinguish between boilerplate generation and deep architectural logic. Unlike simple line-counting, ETCH weights nodes based on their semantic complexity and stylistic variance.
+                    </p>
+                    <ul className="list-disc list-outside ml-5 mt-4 space-y-2 text-[15px]">
+                      <li><strong>Structural Invariants:</strong> Analysis of control-flow structures that remain consistent even after LLM-based refactoring.</li>
+                      <li><strong>Entropy Weighting:</strong> High-entropy transformations in the code graph are assigned higher "Authorship Credit."</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="text-[18px] font-medium text-[#202124] mb-3 tracking-tight">Verifiable Registry Architecture</h3>
+                    <p>
+                      Central to the protocol is an <strong>Append-only Cryptographic Log</strong>. Every authorship anchor is added as a leaf to a global Merkle Tree. This allows any consumer to verify the consistency and integrity of the entire authorship history without trusting a central authority.
+                    </p>
+                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 font-mono text-xs text-gray-600">
+                      // Merkle Root Consistency Proof <br/>
+                      root_v2 = SHA-256(root_v1 + new_anchor_nodes)
+                    </div>
                   </div>
                 </div>
               </section>
@@ -312,6 +348,23 @@ export default function ProtocolDocs() {
                 </div>
               </section>
 
+              {/* ROADMAP SECTION */}
+              <section id="roadmap" className="scroll-mt-[100px]">
+                <h2 className="text-[26px] font-normal text-[#202124] tracking-tight mb-4 border-b border-gray-100 pb-2">Roadmap</h2>
+                <div className="space-y-6 mt-8">
+                  <div className="relative pl-8 border-l-2 border-[#1a73e8]">
+                    <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-[#1a73e8] border-4 border-white" />
+                    <h4 className="font-medium text-[#202124]">Q3 2026: Zero-Knowledge Attribution</h4>
+                    <p className="text-sm text-[#5f6368] mt-1">Implement ZK-SNARKs to allow authorship proof without revealing the underlying private identity in public registries.</p>
+                  </div>
+                  <div className="relative pl-8 border-l-2 border-gray-200">
+                    <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-gray-200 border-4 border-white" />
+                    <h4 className="font-medium text-[#202124]">Q4 2026: Hardware Enclave SDK</h4>
+                    <p className="text-sm text-[#5f6368] mt-1">Direct support for AWS Nitro Enclaves and Azure Confidential Computing for automated, secure signing agents.</p>
+                  </div>
+                </div>
+              </section>
+
 
             </div>
 
@@ -378,6 +431,14 @@ export default function ProtocolDocs() {
                 className={`block w-full text-left py-1.5 pl-4 border-l-2 text-[13px] ${activeSection === 'enterprise-security' ? 'border-[#1a73e8] text-[#1a73e8] font-medium' : 'border-gray-200 text-[#5f6368] hover:text-[#202124]'}`}
               >
                 Enterprise Security
+              </button>
+            </li>
+            <li>
+              <button 
+                onClick={() => scrollTo('roadmap')} 
+                className={`block w-full text-left py-1.5 pl-4 border-l-2 text-[13px] ${activeSection === 'roadmap' ? 'border-[#1a73e8] text-[#1a73e8] font-medium' : 'border-gray-200 text-[#5f6368] hover:text-[#202124]'}`}
+              >
+                Roadmap
               </button>
             </li>
             <li>

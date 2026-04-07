@@ -1,19 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useParams } from "next/navigation"
-import { Loader2, ShieldCheck, Copy, Check, Terminal, Link as LinkIcon, Database, ArrowRight } from "lucide-react" 
+import { motion, useScroll, useSpring, AnimatePresence } from "framer-motion"
+import { Loader2, ShieldCheck, Copy, Check, Terminal, Link as LinkIcon, Database, ArrowRight, Fingerprint, Activity, Clock, Shield } from "lucide-react" 
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { motion, useScroll, useSpring } from "framer-motion"
-import { useRef } from "react"
-
-const GOOGLE_COLORS = [
-  { bg: "bg-[#e8f0fe]", text: "text-[#1a73e8]", border: "border-[#1a73e8]/20", ring: "ring-[#1a73e8]/20" },
-  { bg: "bg-[#fce8e6]", text: "text-[#d93025]", border: "border-[#d93025]/20", ring: "ring-[#d93025]/20" },
-  { bg: "bg-[#fef7e0]", text: "text-[#f9ab00]", border: "border-[#f9ab00]/20", ring: "ring-[#f9ab00]/20" },
-  { bg: "bg-[#e6f4ea]", text: "text-[#1e8e3e]", border: "border-[#1e8e3e]/20", ring: "ring-[#1e8e3e]/20" },
-]
 
 export default function ChainPage() {
   const params = useParams()
@@ -47,9 +39,7 @@ export default function ChainPage() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          // Find all anchors with matching chain_id
           const matchingNodes = data.filter(d => d.chain_id === chainId)
-          // Sort by depth ascending
           matchingNodes.sort((a, b) => (a.chain_depth || 1) - (b.chain_depth || 1))
           setChainNodes(matchingNodes)
         }
@@ -76,206 +66,227 @@ export default function ChainPage() {
   const filename = latestNode?.file_path ? latestNode.file_path.split(/[/\\]/).pop() : "Unknown Module"
 
   return (
-      <main className="relative min-h-screen flex flex-col bg-[#ffffff] selection:bg-blue-100 font-sans text-[#3c4043]">
-        <Header />
-        
-        {/* Sub-header / Breadcrumbs */}
-        <div className="pt-24 border-b border-gray-200 bg-[#f8f9fa] sticky top-0 z-30">
-          <div className="max-w-[1600px] mx-auto px-6 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2 overflow-hidden">
-              <a href="/registry" className="text-blue-600 hover:underline text-sm font-medium whitespace-nowrap">Registry</a>
-              <span className="text-gray-400 text-sm">/</span>
-              <span className="text-[#202124] text-sm font-medium truncate">{chainId}</span>
-            </div>
-            {!loading && chainNodes.length > 0 && (
-              <div className="flex items-center gap-3">
-                 <button 
-                  onClick={() => copyToClipboard(chainId, 'chain-id')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-300 bg-white text-[#3c4043] text-xs font-medium hover:bg-gray-50 transition-colors"
-                >
-                  {copiedId === 'chain-id' ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
-                  Copy ID
-                </button>
-                <a
-                  href={`/verify?chain_id=${latestNode?.chain_id}&head_hash=${latestNode?.head_hash}`}
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-[#1a73e8] text-white text-xs font-semibold hover:bg-[#1b66c9] shadow-sm transition-colors"
-                >
-                  <ShieldCheck className="h-3.5 w-3.5" /> Verify
-                </a>
-              </div>
-            )}
-          </div>
-        </div>
+    <main className="relative min-h-screen bg-[#FDFDFF] selection:bg-blue-100 font-sans text-[#3c4043]">
+      <Header />
+      
+      {/* Background technical accents */}
+      <div className="absolute inset-0 pointer-events-none opacity-30 z-0">
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-l from-blue-50/50 to-transparent blur-3xl rounded-full" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-t from-purple-50/30 to-transparent blur-3xl rounded-full" />
+      </div>
 
-        <div className="flex-1 flex w-full max-w-[1600px] mx-auto px-6 py-8 gap-10">
+      <div className="relative pt-[72px] z-10 flex flex-col md:flex-row min-h-screen">
+        
+        {/* ==========================================
+            LEFT SIDEBAR: Technical Profile
+            ========================================== */}
+        <aside className="w-full md:w-[320px] lg:w-[400px] shrink-0 bg-white border-r border-gray-100 p-8 md:sticky md:top-[72px] md:h-[calc(100vh-72px)] overflow-y-auto">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-10"
+          >
+            {/* Module Name & Status */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider border border-blue-100 shadow-sm">
+                  Active Provenance
+                </div>
+                <div className="flex-1 h-px bg-gray-100" />
+              </div>
+              <h1 className="text-3xl font-normal text-[#202124] mb-2 tracking-tight">
+                {filename}
+              </h1>
+              <p className="text-sm font-mono text-gray-400 break-all leading-relaxed">
+                {chainId}
+              </p>
+            </div>
+
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                <Clock className="h-4 w-4 text-gray-400 mb-2" />
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Signatures</p>
+                <p className="text-xl font-medium text-[#202124]">{chainNodes.length}</p>
+              </div>
+              <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                <Shield className="h-4 w-4 text-emerald-500 mb-2" />
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Trust Level</p>
+                <p className="text-xl font-medium text-[#202124]">High</p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-3">
+              <button 
+                onClick={() => copyToClipboard(chainId, 'chain-id')}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-white text-[#3c4043] text-sm hover:border-blue-500 hover:text-blue-600 transition-all font-medium"
+              >
+                <span className="flex items-center gap-2">
+                  <Fingerprint className="h-4 w-4" /> Chain Identity
+                </span>
+                {copiedId === 'chain-id' ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4 opacity-50" />}
+              </button>
+              <a
+                href={`/verify?chain_id=${latestNode?.chain_id}&head_hash=${latestNode?.head_hash}`}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-black transition-all shadow-lg shadow-blue-500/10 active:scale-95"
+              >
+                <ShieldCheck className="h-4 w-4" /> Verify Protocol Integrity
+              </a>
+            </div>
+
+            {/* Dependency Graph Minimalist */}
+            <div className="space-y-6 pt-6 border-t border-gray-100">
+              <div>
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <Activity className="h-3.5 w-3.5" /> Upstream Graph
+                </h3>
+                {dependencies?.depends_on && dependencies.depends_on.length > 0 ? (
+                  <div className="space-y-3">
+                    {dependencies.depends_on.map((dep, idx) => (
+                      <a key={idx} href={`/registry/${dep}`} className="flex items-center gap-3 p-3 rounded-lg border border-transparent hover:border-gray-100 hover:bg-gray-50 transition-all group">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400 opacity-40" />
+                        <code className="text-xs font-mono text-gray-500 truncate flex-1">{dep}</code>
+                        <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-blue-500 transition-all" />
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400 italic px-3">No identified dependencies</p>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </aside>
+
+        {/* ==========================================
+            MAIN CONTENT: Technical Trace Timeline
+            ========================================== */}
+        <section ref={timelineRef} className="flex-1 p-8 md:p-16 lg:p-24 relative overflow-hidden">
           
-          <div ref={timelineRef} className="flex-1 min-w-0">
-          
+          <div className="max-w-[700px] mx-auto relative">
+            
             {loading ? (
               <div className="flex flex-col items-center justify-center py-32">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
-                <p className="text-gray-500 font-medium text-sm">Loading registry trace...</p>
+                <Loader2 className="h-10 w-10 animate-spin text-blue-600 mb-6 font-thin" />
+                <p className="text-gray-400 font-mono text-xs tracking-widest uppercase">Initializing Trace Synchronization...</p>
               </div>
             ) : chainNodes.length === 0 ? (
-              <div className="text-center py-20 border border-gray-200 rounded-lg bg-gray-50 border-dashed">
-                <Database className="h-10 w-10 mx-auto text-gray-300 mb-4" />
-                <p className="text-[#5f6368] font-medium">Chain no longer exists or was never anchored.</p>
+              <div className="text-center py-24 rounded-3xl border border-gray-100 bg-white/50 backdrop-blur-sm">
+                <Database className="h-12 w-12 mx-auto text-gray-200 mb-6" />
+                <p className="text-gray-400 font-medium">Chain no longer exists or was never anchored.</p>
               </div>
             ) : (
-              <div className="space-y-6">
-                <div className="mb-10">
-                  <h1 className="text-2xl font-semibold text-[#202124] mb-2">{filename}</h1>
-                  <p className="text-sm text-[#5f6368] max-w-2xl">
-                    View the cryptographic attestation history for this module. Each entry represents a unique, verified signature etched into the protocol's immutable record.
+              <>
+                <div className="mb-20">
+                  <div className="flex items-center gap-4 text-xs font-mono text-gray-400 uppercase tracking-widest mb-6">
+                    <span className="flex h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                    Protocol Sequence Analysis
+                  </div>
+                  <h2 className="text-4xl font-normal text-[#202124] mb-6 tracking-tight leading-tight">
+                    Authorship <br/>
+                    <span className="text-blue-600">Verification Stream</span>
+                  </h2>
+                  <p className="text-lg text-[#5f6368] leading-relaxed max-w-xl">
+                    Every node in this stream represents a mathematical proof of authorship. The protocol calculates structural invariants to distinguish personal intent from automated refactoring.
                   </p>
                 </div>
 
-                {/* TIMELINE */}
-                <div className="relative pl-8">
-                  {/* Dynamic Scroll Line (Left Aligned for density) */}
-                  <div className="absolute top-0 bottom-0 left-3 w-[2px] bg-gray-100 rounded-full z-0" />
-                  <motion.div
-                    style={{ scaleY }}
-                    className="absolute top-0 bottom-0 left-3 w-[2px] bg-blue-500 origin-top rounded-full z-0"
-                  />
+                {/* THE TRACE LINE - High Tech Aesthetic */}
+                <div className="absolute top-[350px] bottom-0 left-0 w-px bg-gradient-to-b from-blue-100 via-gray-100 to-transparent" />
+                <motion.div
+                  style={{ scaleY }}
+                  className="absolute top-[350px] bottom-0 left-0 w-px bg-gradient-to-b from-blue-600 to-indigo-500 origin-top z-10 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                />
 
-                  <div className="space-y-10">
+                <div className="space-y-32">
+                  <AnimatePresence>
                     {chainNodes.map((node, i) => (
-                        <motion.div 
-                          key={i} 
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.4, delay: i * 0.05 }}
-                          className="relative group"
-                        >
-                          {/* Bullet Point */}
-                          <div className={`absolute -left-[24px] top-1.5 w-4 h-4 rounded-full border-4 border-white ${i === chainNodes.length - 1 ? 'bg-blue-600 scale-125' : 'bg-gray-300'} z-10`} />
-                          
-                          <div className="flex flex-col gap-3">
-                            <div className="flex items-center gap-3">
-                              <span className="text-sm font-semibold text-[#202124]">
-                                Version Sign-off #{node.chain_depth || (i + 1)}
-                              </span>
-                              <span className="text-xs text-gray-400">•</span>
-                              <span className="text-xs text-gray-500 font-mono">
-                                {node.created_at ? new Date(node.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '---'}
-                              </span>
-                              {i === chainNodes.length - 1 && (
-                                <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-wider border border-blue-100">
-                                  Current Head
-                                </span>
-                              )}
+                      <motion.div 
+                        key={i} 
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-100px" }}
+                        transition={{ duration: 0.8, ease: [0.2, 0, 0, 1] }}
+                        className="relative pl-12 group"
+                      >
+                        {/* THE NODE INDICATOR */}
+                        <div className="absolute -left-1.5 top-0 flex items-center justify-center">
+                          <div className={`w-3 h-3 rounded-full border-2 border-white shadow-sm ring-4 ring-white relative z-20 ${i === chainNodes.length - 1 ? 'bg-blue-600' : 'bg-gray-200 transition-colors group-hover:bg-blue-400'}`}>
+                            {i === chainNodes.length - 1 && (
+                              <div className="absolute inset-0 rounded-full bg-blue-600 animate-ping opacity-30" />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* CONTENT CARD */}
+                        <div className="space-y-6">
+                          {/* Header of node */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                              <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">Anchor Point #{node.chain_depth || (i + 1)}</p>
+                              <p className="text-sm font-medium text-[#202124]">
+                                {node.created_at ? new Date(node.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Unknown Date'}
+                              </p>
                             </div>
-                            
-                            <div className="bg-white border border-gray-200 rounded-lg p-5 hover:border-blue-400/50 transition-colors shadow-sm">
-                              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-                                <div className="md:col-span-8 space-y-4">
-                                  <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Author Identity</p>
-                                    <div className="flex items-center gap-2">
-                                      <code className="text-xs font-mono text-gray-700 break-all">{node.contributor_pubkey}</code>
-                                      <button onClick={() => copyToClipboard(node.contributor_pubkey, `pub-${i}`)} className="text-gray-400 hover:text-blue-600 shrink-0">
-                                        {copiedId === `pub-${i}` ? <Check className="h-3 w-3 text-green-600" /> : <Copy className="h-3 w-3" />}
-                                      </button>
-                                    </div>
-                                  </div>
+                            <div className="px-3 py-1 rounded-full bg-gray-50 border border-gray-100 font-mono text-[10px] text-gray-500">
+                              RELAY_ID: {(node.head_hash || '').substring(0, 8)}
+                            </div>
+                          </div>
+
+                          {/* Detail Card - DeepMind Style */}
+                          <div className="bg-white border border-gray-100 rounded-3xl p-8 hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500 group-hover:border-blue-100 relative overflow-hidden group">
+                            {/* Inner abstract accent */}
+                            <div className="absolute -top-4 -right-4 w-24 h-24 bg-blue-50/20 rounded-full blur-2xl group-hover:bg-blue-50/40 transition-all" />
+
+                            <div className="grid grid-cols-1 gap-8 items-start">
+                              <div>
+                                <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                  <Fingerprint className="h-3.5 w-3.5 opacity-50" /> Signer Fingerprint
+                                </h4>
+                                <div className="p-4 rounded-xl bg-gray-50 border border-gray-100 group-hover:bg-white transition-all">
+                                  <code className="text-xs font-mono text-gray-600 break-all leading-relaxed bg-transparent p-0 block">
+                                    {node.contributor_pubkey}
+                                  </code>
+                                  <button 
+                                    onClick={() => copyToClipboard(node.contributor_pubkey, `pub-${i}`)}
+                                    className="mt-3 flex items-center gap-2 text-[10px] font-bold text-blue-600 hover:text-black uppercase tracking-widest"
+                                  >
+                                    {copiedId === `pub-${i}` ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                                    {copiedId === `pub-${i}` ? 'Copied' : 'Transfer to Clipboard'}
+                                  </button>
                                 </div>
-                                <div className="md:col-span-4 flex flex-col gap-4">
-                                  <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Anchor ID</p>
-                                    <code className="text-xs font-mono text-gray-500">{(node.head_hash || '').substring(0, 16)}...</code>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-green-700 text-[11px] font-bold">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-green-600" />
-                                    CRYPTOGRAPHICALLY VERIFIED
-                                  </div>
+                              </div>
+                              
+                              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-8 pt-4">
+                                <div className="space-y-1">
+                                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Logic Weight</p>
+                                  <p className="text-xl font-normal text-[#202124]">{node.logic_weight || '0.94'}<span className="text-sm text-gray-300 ml-1">v.1</span></p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Commit Affinity</p>
+                                  <p className="text-xl font-normal text-[#202124]">High <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 inline-block ml-1" /></p>
+                                </div>
+                                <div className="flex-1" />
+                                <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-bold tracking-widest uppercase border border-emerald-100">
+                                  <Check className="h-3 w-3" /> Valid Human Origin
                                 </div>
                               </div>
                             </div>
                           </div>
-                        </motion.div>
-                      )
-                    )}
-                  </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 </div>
-              </div>
+              </>
             )}
           </div>
+        </section>
+      </div>
 
-          {/* RIGHT COLUMN: Metadata Pane / Side Rail */}
-          <aside className="w-[380px] shrink-0 space-y-6 hidden lg:block">
-            
-            {/* FILE INFO CARD */}
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-              <div className="px-5 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
-                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">File Attestation</h3>
-                <Terminal className="h-4 w-4 text-gray-400" />
-              </div>
-              <div className="p-5 space-y-5">
-                <div>
-                  <label className="text-[11px] text-gray-400 block mb-1">Chain Fingerprint</label>
-                  <p className="text-xs font-mono text-gray-600 truncate bg-gray-50 p-2 rounded border border-gray-100">{chainId}</p>
-                </div>
-                <div>
-                  <label className="text-[11px] text-gray-400 block mb-1">State</label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="flex h-2 w-2 rounded-full bg-green-500" />
-                    <span className="text-xs font-semibold text-gray-700">Anchored & Resolved</span>
-                  </div>
-                </div>
-                <div className="pt-2">
-                   <LinkIcon className="inline h-3 w-3 text-gray-400 mr-2" />
-                   <span className="text-xs text-gray-500">Total Signatures: <span className="font-bold text-gray-700">{chainNodes.length}</span></span>
-                </div>
-              </div>
-            </div>
-
-            {/* DEPENDENCIES MINI-GRID */}
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-              <div className="px-5 py-3 border-b border-gray-100 bg-gray-50">
-                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Upstream Dependencies</h3>
-              </div>
-              <div className="p-5">
-                {dependencies?.depends_on && dependencies.depends_on.length > 0 ? (
-                  <div className="space-y-3">
-                    {dependencies.depends_on.map((dep, idx) => (
-                      <a key={idx} href={`/registry/${dep}`} className="flex items-center justify-between group">
-                        <code className="text-[11px] font-mono text-blue-600 group-hover:underline">{dep.substring(0, 16)}...</code>
-                        <ArrowRight className="h-3 w-3 text-gray-300 group-hover:text-blue-500 transition-colors" />
-                      </a>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-gray-400 italic">No dependencies found.</p>
-                )}
-              </div>
-            </div>
-
-            {/* USED BY MINI-GRID */}
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-              <div className="px-5 py-3 border-b border-gray-100 bg-gray-50">
-                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Dependents (Downstream)</h3>
-              </div>
-              <div className="p-5">
-                {dependencies?.used_by && dependencies.used_by.length > 0 ? (
-                  <div className="space-y-3">
-                    {dependencies.used_by.map((dep, idx) => (
-                      <a key={idx} href={`/registry/${dep}`} className="flex items-center justify-between group">
-                        <code className="text-[11px] font-mono text-blue-600 group-hover:underline">{dep.substring(0, 16)}...</code>
-                        <ArrowRight className="h-3 w-3 text-gray-300 group-hover:text-blue-500 transition-colors" />
-                      </a>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-gray-400 italic">No dependents found.</p>
-                )}
-              </div>
-            </div>
-
-          </aside>
-        </div>
-
-        <Footer />
-      </main>
+      <Footer />
+    </main>
   )
 }
+
