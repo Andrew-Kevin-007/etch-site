@@ -31,10 +31,7 @@ export function Header() {
   }, [])
 
   return (
-    <motion.header
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.8, delay: 0.2, ease: [0.2, 0, 0, 1] }}
+    <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
         isScrolled
@@ -54,13 +51,8 @@ export function Header() {
 
           {/* Desktop Navigation - Center */}
           <div className="hidden items-center gap-8 md:flex">
-            {navItems.map((item, index) => (
-              <motion.div
-                key={item.label}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-              >
+            {navItems.map((item) => (
+              <div key={item.label}>
                 <Link
                   href={item.href}
                   className={cn(
@@ -79,26 +71,21 @@ export function Header() {
                     />
                   )}
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
 
           {/* Install CTA - Right */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className="flex items-center gap-4"
-          >
+          <div className="flex items-center gap-4">
             <Link
               href="/registry"
               className="hidden sm:inline-flex h-10 items-center justify-center px-6 rounded-full text-sm font-medium transition-all hover:scale-105 bg-[#202124] text-white hover:bg-black shadow-sm"
             >
               Install
             </Link>
-          </motion.div>
+          </div>
         </nav>
       </div>
-    </motion.header>
+    </header>
   )
 }

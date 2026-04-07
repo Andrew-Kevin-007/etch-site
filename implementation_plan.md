@@ -1,34 +1,32 @@
-# Refactor Protocol Docs Page for Light Theme Brand
+# Registry Page Refactoring Plan
 
-The goal is to transform the `/protocol` page from its current dark, "hacker-themed" neon aesthetic into a premium, clean, Google-inspired documentation layout that seamlessly matches the new homepage brand.
+Based on my analysis of `app/registry/page.tsx` and the current state of the application, the `/registry` page currently sits as a legacy component utilizing the old "Cyberpunk/Hacker" dark theme. 
 
-## User Review Required
+## Current Insights & Problems
 
-> [!IMPORTANT]
-> The current page operates as a single long-scrolling document. To make it feel like a "real docs page", I am proposing a **two-column layout** featuring a sticky sidebar on the left and content on the right, which is the industry standard for technical documentation (similar to Google Cloud or Vercel docs). Please confirm if you are happy with introducing a sidebar layout for this page.
+1. **Massive Theme Mismatch:** The registry page relies heavily on deep black backgrounds (`#0a0a0a`, `#111`), glowing neon green outlines (`#00ff9d`), and raw monospace typography. It severely breaks visual continuity with our refined "Google Docs" white-theme layout.
+2. **Missing Brand Mechanics:** It lacks the frosted glassmorphism elements, the sleek "Google Sans" typography, and the soft blue (`#e8f0fe` / `#1a73e8`) highlight palette established across the rest of the site.
+3. **Data Grid Display:** The live-fetched cryptographic modules display cleanly, but they are rendered in a high-contrast dark table instead of a sleek, white Google-Cloud style console dashboard.
 
-## Proposed Changes
+## Proposed Layout Redesign
 
-### `app/protocol/page.tsx`
+The objective is to pivot the registry into feeling like a **Google Cloud Developer Console** or **Google Drive** file explorer. 
 
-We will completely rewrite this file with the following updates:
+### 1. Structure & Layout
+- Change the root container to a spacious, white edge-to-edge frame (`bg-gray-50/30` or `bg-white`).
+- Constrain the maximum width naturally with generous horizontal padding, switching the grid lines to subtle light grays (`border-gray-200`).
 
-#### [MODIFY] `app/protocol/page.tsx`
-- **Theme & Colors:** Change `bg-[#0a0a0a]` to `bg-white`. Update all text colors from white/neon green to high-contrast `#202124` for headings and `#5F6368` for body text.
-- **Layout:** Implement a `grid-cols-1` md:`grid-cols-4` layout with a sticky left sidebar for quick navigation (Overview, Standards, Threat Model).
-- **Typography:** Remove all uppercase hacker monospace fonts from headings. Use clean, `tracking-tight` sans-serif fonts for headings and highly readable fonts for paragraphs.
-- **Components to Remove:** `<CursorGlow />` will be deleted from this page.
-- **Styling Details:** 
-  - Convert the "AI CANNOT SIGN" banner from a giant neon block into a sophisticated, modern "Alert / Note" callout block using a soft red or yellow border.
-  - Convert lists and bullet points into highly structured documentation cards or standard tech-doc bulleting.
-  - Update the "Explore Registry" button to match the primary pill-shaped black CTA button implemented in the hero section.
+### 2. The Hero / Dashboard Header
+- Remove neon borders on the statistic cards (Modules, Contributors, Chains). 
+- Introduce a clean, minimal "white card" layout for these stats—potentially with ultra-subtle box-shadows or left-aligned border highlights to designate important metrics.
+- Soften the "Search" bar out of its neon state into a clean, pill-shaped Google Drive-style input (`bg-gray-100`, soft hover shadow).
 
-## Open Questions
+### 3. The Explorer Grid
+- Shift the actual `filteredModules` mapping from a black/neon table into a **material-design data table**.
+- Author PubKeys and File Paths will drop their raw monospace neon tags and adopt clean, pill-shaped `<code/>` or badge structures (`bg-gray-100 text-gray-800`).
+- The "VERIFIED" tags will map to Google-style Success pills (soft green background, darker green text).
 
-- Should we split the docs into multiple files/routes, or keep it as a single page with jump links in the sidebar? (I will assume a single page with jump links for now to keep the scope focused on UI refactoring, unless you specify otherwise).
+## User Feedback Required
 
-## Verification Plan
-
-- Check the `/protocol` page in the browser to ensure no dark mode remnants exist.
-- Verify the sticky sidebar behaves correctly on scroll.
-- Ensure mobile responsiveness (collapsing the sidebar on small screens).
+> [!IMPORTANT]  
+> Before I begin executing this redesign, I want to confirm: Would you like the Registry module list to look like a standard **Google Cloud Console Data Table** (clean rows, distinct header, minimalist separation lines)? And should we apply glassmorphism to the search bar like we did on the homepage CTA?
