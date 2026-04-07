@@ -9,6 +9,7 @@ export default function RegistryPage() {
   const [modules, setModules] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
+  const [displayLimit, setDisplayLimit] = useState(15)
 
   const [stats, setStats] = useState({
     totalModules: 0,
@@ -66,6 +67,9 @@ export default function RegistryPage() {
           }
 
           const dedupedModules = Array.from(latestAnchors.values())        
+          
+          // Sort by chain depth descending for 'Top 15'
+          dedupedModules.sort((a, b) => (b.chain_depth || 1) - (a.chain_depth || 1))
 
           setStats({
             totalModules: dedupedModules.length,
@@ -90,13 +94,16 @@ export default function RegistryPage() {
     const filename = m.file_path ? m.file_path.split(/[/\\]/).pop() : ""   
     const matchesSearch = filename.toLowerCase().includes(search.toLowerCase()) ||
                           (m.contributor_pubkey || "").toLowerCase().includes(search.toLowerCase())
-    if (!matchesSearch) return false
-    return true
+    return matchesSearch
   })
+
+  // Apply display limit unless searching
+  const modulesToDisplay = search.trim().length > 0 ? filteredModules : filteredModules.slice(0, displayLimit)
+  const hasMore = filteredModules.length > modulesToDisplay.length
 
   return (
     <>
-      <main className="relative min-h-screen flex flex-col bg-white selection:bg-blue-100">   
+      <main className="relative min-h-screen flex flex-col bg-white selection:bg-violet-100">   
         {/* Fixed Header */}
         <div className="flex-shrink-0 z-50 bg-white">
            <Header />
@@ -109,7 +116,7 @@ export default function RegistryPage() {
           <aside className="hidden lg:flex w-64 flex-col bg-white border-r border-[#f1f3f4] shrink-0 pt-4 pb-6">
              <div className="px-3 mb-6">
                 <button className="flex items-center gap-3 px-5 py-3.5 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-gray-50 hover:shadow transition-all text-gray-700 font-medium text-[14px]">
-                   <ShieldCheck className="h-5 w-5 text-blue-600" />
+                   <ShieldCheck className="h-5 w-5 text-violet-600" />
                    New Signature
                 </button>
              </div>
@@ -225,8 +232,8 @@ export default function RegistryPage() {
                     <p className="font-medium text-[14px]">Type more characters to filter...</p>
                   </div>
                 ) : loading ? (
-                  <div className="flex flex-col items-center justify-center py-32 text-blue-600 bg-white">
-                    <Loader2 className="h-8 w-8 animate-spin mb-4 text-[#1a73e8]" />
+                  <div className="flex flex-col items-center justify-center py-32 text-violet-600 bg-white">
+                    <Loader2 className="h-8 w-8 animate-spin mb-4 text-violet-600" />
                   </div>
                 ) : filteredModules.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-32 bg-white">
@@ -239,7 +246,7 @@ export default function RegistryPage() {
                     <div className="flex items-center px-6 py-2.5 border-b border-[#dadce0] text-[12px] font-semibold text-[#5f6368] tracking-wider sticky top-0 bg-white z-10 transition-colors">
                       <div className="w-12 shrink-0 flex items-center justify-center cursor-pointer hover:bg-gray-100 p-1.5 rounded-full transition-colors" onClick={toggleAll}>
                          {selectedRows.size === filteredModules.length && filteredModules.length > 0 ? (
-                            <CheckSquare className="h-4 w-4 text-[#1a73e8]" />
+                            <CheckSquare className="h-4 w-4 text-violet-600" />
                          ) : (
                             <Square className="h-4 w-4 text-gray-300 hover:text-gray-400" />
                          )}
@@ -252,14 +259,14 @@ export default function RegistryPage() {
 
                     {/* Table Body */}
                     <div className="flex flex-col">
-                      {filteredModules.map((m, i) => {
+                      {modulesToDisplay.map((m, i) => {
                         const isSelected = selectedRows.has(i);
                         return (
                         <div key={i} className="flex relative">
                            {/* Clickable Row background */}
                            <Link
                              href={`/registry/${m.chain_id || ''}`}
-                             className={`absolute inset-0 z-0 ${isSelected ? 'bg-[#e8f0fe] hover:bg-[#e8f0fe]' : 'hover:bg-[#f5f5f5]'} transition-colors border-b border-[#f1f3f4] last:border-none`}
+                             className={`absolute inset-0 z-0 ${isSelected ? 'bg-violet-50 hover:bg-violet-50' : 'hover:bg-[#f5f5f5]'} transition-colors border-b border-[#f1f3f4] last:border-none`}
                            />
                            
                            {/* Content Layer (on top of link) */}
@@ -268,7 +275,7 @@ export default function RegistryPage() {
                               <div className="w-12 shrink-0 flex items-center justify-center pointer-events-auto">
                                 <div onClick={(e) => { e.preventDefault(); toggleRow(i); }} className="cursor-pointer hover:bg-gray-200/50 p-1.5 rounded-full transition-colors">
                                    {isSelected ? (
-                                      <CheckSquare className="h-[18px] w-[18px] text-[#1a73e8]" />
+                                      <CheckSquare className="h-[18px] w-[18px] text-violet-600" />
                                    ) : (
                                       <Square className="h-[18px] w-[18px] text-gray-300 group-hover:text-gray-400" />
                                    )}
@@ -276,32 +283,42 @@ export default function RegistryPage() {
                               </div>
                               
                               <div className="w-[35%] lg:w-[40%] pl-2 flex items-center gap-3">
-                                <div className={`${isSelected ? 'text-[#1a73e8]' : 'text-[#8ab4f8]'} transition-colors shrink-0`}>
+                                <div className={`${isSelected ? 'text-violet-600' : 'text-violet-400'} transition-colors shrink-0`}>
                                    <FileKey className="h-5 w-5 fill-current opacity-20" />
                                 </div>
-                                <span className={`font-mono text-[13px] ${isSelected ? 'text-[#1a73e8] font-bold' : 'text-[#202124] font-medium'} truncate transition-colors`} title={m.file_path}>
+                                <span className={`font-mono text-[13px] ${isSelected ? 'text-violet-600' : 'text-[#202124]'} truncate transition-colors`} title={m.file_path}>
                                   {m.file_path ? m.file_path.split(/[/\\]/).pop() : 'Unknown'}
                                 </span>
                               </div>
 
                               <div className="w-[25%] flex items-center">        
-                                 <code className={`px-2 py-0.5 rounded text-[12px] font-mono border transition-colors truncate ${isSelected ? 'bg-white border-[#1a73e8]/30 text-[#1a73e8]' : 'bg-[#f8f9fa] border-gray-200 text-[#5f6368]'}`} title={m.contributor_pubkey}>
+                                 <code className={`px-2 py-0.5 rounded text-[12px] font-mono border transition-colors truncate ${isSelected ? 'bg-white border-violet-200 text-violet-600 shadow-sm' : 'bg-[#f8f9fa] border-gray-200 text-[#5f6368]'}`} title={m.contributor_pubkey}>
                                     {m.contributor_pubkey ? m.contributor_pubkey.substring(0, 10) + '...' : 'Unknown'}
                                  </code>
                               </div>
 
-                              <div className={`w-[15%] flex flex-row items-center justify-center font-mono text-[13px] ${isSelected ? 'text-[#1a73e8]' : 'text-[#5f6368]'}`}>     
-                                <GitMerge className={`h-3.5 w-3.5 mr-1.5 ${isSelected ? 'text-[#1a73e8]' : 'text-gray-400'}`} /> 
+                              <div className={`w-[15%] flex flex-row items-center justify-center font-mono text-[13px] ${isSelected ? 'text-violet-600' : 'text-[#5f6368]'}`}>     
+                                <GitMerge className={`h-3.5 w-3.5 mr-1.5 ${isSelected ? 'text-violet-600' : 'text-gray-400'}`} /> 
                                 {m.chain_depth || 1}
                               </div>
 
-                              <div className={`flex-1 flex items-center justify-end text-[13px] truncate pr-4 ${isSelected ? 'text-[#1a73e8]' : 'text-[#5f6368]'}`}>
+                              <div className={`flex-1 flex items-center justify-end text-[13px] truncate pr-4 ${isSelected ? 'text-violet-600' : 'text-[#5f6368]'}`}>
                                 {m.created_at ? new Date(m.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '---'}
                               </div>
                            </div>
                         </div>
                         )
                       })}
+                    {hasMore && (
+                        <div className="flex items-center justify-center py-8">
+                          <button 
+                            onClick={() => setDisplayLimit(displayLimit + 15)}
+                            className="bg-white hover:bg-gray-50 text-violet-600 border border-violet-200 px-6 py-2 rounded-full text-sm font-semibold transition-all shadow-sm hover:shadow active:scale-95"
+                          >
+                            Explore More Clusters
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

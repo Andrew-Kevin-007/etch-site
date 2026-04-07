@@ -30,38 +30,49 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://eindev.ir'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://etch.so'),
   title: {
-    default: "ETCH — HUMAN AUTHORSHIP, ETCHED IN CODE",
-    template: "%s | ETCH",
+    default: "ETCH | Cryptographic Authorship Attribution & Provenance",
+    template: "%s | ETCH Protocol",
   },
   description:
-    "etch is a cryptographic protocol that preserves and verifies human authorship in software. Sign your code. Prove you wrote it.",
-  keywords: ["Software Engineering", "Web Development", "Next.js", "React", "TypeScript", "AI", "Machine Learning", "Systems Programming", "Code Experiments"],
-  authors: [{ name: "Ehsan Ghaffar", url: "https://github.com/ehsanghaffar" }],
-  creator: "Ehsan Ghaffar",
-  publisher: "Ehsan Ghaffar",
+    "ETCH is a high-performance cryptographic protocol for verifiable human authorship in software development. Secure your code provenance against AI-generated noise.",
+  keywords: [
+    "ETCH Protocol", 
+    "Code Authorship", 
+    "Software Provenance", 
+    "Cryptographic Attribution", 
+    "Verifiable Software", 
+    "Human-Centric Development", 
+    "AST Analysis", 
+    "Merkle Proofs", 
+    "Developer Authentication",
+    "Source Code Security"
+  ],
+  authors: [{ name: "ETCH Core Team", url: "https://etch.so" }],
+  creator: "ETCH Protocol",
+  publisher: "ETCH Protocol",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "/",
-    title: "ETCH — HUMAN AUTHORSHIP, ETCHED IN CODE",
-    description: "etch is a cryptographic protocol that preserves and verifies human authorship in software. Sign your code. Prove you wrote it.",
+    title: "ETCH | Cryptographic Authorship Attribution",
+    description: "Verifiable human authorship for the modern software era. Sign, verify, and trace your code's origin with cryptographic certainty.",
     siteName: "ETCH",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ETCH — HUMAN AUTHORSHIP, ETCHED IN CODE",
+        alt: "ETCH — Cryptographic Authorship Attribution",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ETCH — HUMAN AUTHORSHIP, ETCHED IN CODE",
-    description: "etch is a cryptographic protocol that preserves and verifies human authorship in software. Sign your code. Prove you wrote it.",
-    creator: "@ehsanghaffar",
+    title: "ETCH | Cryptographic Authorship Attribution",
+    description: "Verifiable human authorship etched in code. The standard for protocol-level developer attribution.",
+    creator: "@etch_protocol",
     images: ["/og-image.png"],
   },
   robots: {
@@ -77,14 +88,6 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
       {
         url: "/icon.svg",
         type: "image/svg+xml",
