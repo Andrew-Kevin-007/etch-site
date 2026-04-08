@@ -1,32 +1,37 @@
-# Chain Details Protocol Refactoring Plan
+# Bug Fixes and Codebase Analysis
 
-The detailed chain view (`app/registry/[chain_id]/page.tsx`) still hosts the obsolete neon/Hacker timeline design. To complete the refactoring of the Registry portal into a unified Google Service application, this page needs a complete architectural shift and the integration of highly-refined Google/Material animations.
+Our analysis of the codebase reveals that while the core application statically complies and builds appropriately (zero TypeScript errors in `npm run build`), there are lingering project bugs with linting configuration as well as a large amount of unused code and dependencies. 
 
-## Proposed Architecture
+Here is the proposed plan to resolve these issues and clean up the dead code. 
 
-### 1. Unified Background & Layout
-- Remove `CursorGlow` and `scanlines`.
-- Change to the Google Cloud Console white/gray canvas (`bg-[#f8f9fa]`).
-- Use a `max-w-4xl` structured page container centered for deep technical reading.
+## Proposed Changes
 
-### 2. Timeline Redesign (Google Cloud Trace Style)
-The neon vertical timeline will be replaced with a clean **Google Cloud Trace / Action Log** style:
-- The vertical tracking line will be solid light gray (`bg-gray-200`).
-- The depth indicators (currently neon badges) will become clean Google-blue circular avatars (`bg-blue-100 text-blue-700`).
-- The log cards will use white boxes with soft shadows (`bg-white shadow-sm border border-gray-100`).
-- Cryptographic hashes and pub-keys will use the gray `<code/>` pills we established on the main registry (`bg-gray-100 text-gray-700`).
+### 1. Fix Linting Configuration Bugs
+The original `npm run lint` script failed due to ESLint's missing configuration and the `eslint` unassigned command.
+- **[MODIFY]** `package.json`: Set the `lint` command to run `eslint "app/**/*.{ts,tsx}" "components/**/*.{ts,tsx}"` to bypass default `next lint` directory bugs present with Next.js 16 flat-config configurations.
+- **[NEW]** `eslint.config.mjs`: Provide a modern flat-config to execute core Next.js web application linting properly without errors.
 
-### 3. "Depends On / Used By" Refactor
-- Converted into clean, tabular "Associated Resources" blocks.
-- Interactions will feature a soft grey background transition rather than glowing neon highlights.
+### 2. Remove Unused Components and Dead Code
+Based on a codebase-wide analysis via `knip` static analyzer, several top-level files and UI components are entirely disconnected from the active rendering tree. Removing these resolves tech debt.
 
-### 4. Integration of "Google Animations"
-We will use `framer-motion` to introduce Google's signature Material Design motion mechanics:
-- **Staggered Entry**: The timeline items will elegantly slide up and fade in progressively (`delay: index * 0.1`) just like a Google Workspace loading state.
-- **Elevation Physics**: Hovering over interactive cards (like Dependencies) will trigger a smooth Y-axis lift and shadow-elevation exactly mimicking Material Design 3 physics.
-- **Ripple/Pulse Call-to-Action**: The "Verify This Chain" button will drop the neon shadow and adopt the Google core Blue CTA button style, featuring an organic scale up on hover.
+- **[DELETE]** `components/hero-section.tsx`
+- **[DELETE]** `components/lab-notes.tsx`
+- **[DELETE]** `components/projects-grid.tsx`
+- **[DELETE]** `components/theme-changer.tsx`
+- **[DELETE]** `components/theme-toggle.tsx`
+- **[DELETE]** `components/workbench.tsx`
+- **[DELETE]** `lib/themes.ts`
+- **[DELETE]** `components/ui/antigravity.tsx`
+- **[DELETE]** `components/ui/demo.tsx`
+- **[DELETE]** `components/ui/hero-futuristic.tsx`
 
-## User Feedback Required
+> [!WARNING]
+> `styles/globals.css` was flagged by static analysis, but we verified it is imported in `app/layout.tsx`. We will intentionally **retain** this globals file. Similarly, we verified that `framer-motion` is actively used in `protocol-steps-card.tsx`.
 
-> [!IMPORTANT]  
-> Do you approve of mapping the timeline out into a **Google Cloud Trace-style log** and injecting Framer Motion sequences to replicate smooth Material Design entry physics? If so, I will execute the rewrite of `[chain_id]`.
+### 3. Clean up Unused Dependencies
+The `package.json` contains over 40 dependencies that are unused by the current components (like standalone Radix UI primitives, `gsap`, `playwright`, `zod`, `input-otp`, etc.). We will trim these to reduce dependency bloat and installation delays.
+
+## Open Questions
+
+> [!IMPORTANT]
+> **To the User:** Are there any components in the designated "DELETE" list above (e.g. `hero-futuristic.tsx`) that you plan to utilize in upcoming integrations and would like me to spare? If everything looks good, please approve so I can proceed to execution.

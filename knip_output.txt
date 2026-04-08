@@ -1,0 +1,66 @@
+[93m[4mUnused files[24m[39m (11)
+components/hero-section.tsx      
+components/lab-notes.tsx         
+components/projects-grid.tsx     
+components/theme-changer.tsx     
+components/theme-toggle.tsx      
+components/workbench.tsx         
+lib/themes.ts                    
+styles/globals.css               
+components/ui/antigravity.tsx    
+components/ui/demo.tsx           
+components/ui/hero-futuristic.tsx
+[93m[4mUnused dependencies[24m[39m (44)
+@gsap/react                      package.json:23:6
+@hookform/resolvers              package.json:24:6
+@radix-ui/react-accordion        package.json:25:6
+@radix-ui/react-alert-dialog     package.json:26:6
+@radix-ui/react-aspect-ratio     package.json:27:6
+@radix-ui/react-checkbox         package.json:29:6
+@radix-ui/react-collapsible      package.json:30:6
+@radix-ui/react-context-menu     package.json:31:6
+@radix-ui/react-dialog           package.json:32:6
+@radix-ui/react-dropdown-menu    package.json:33:6
+@radix-ui/react-hover-card       package.json:34:6
+@radix-ui/react-label            package.json:35:6
+@radix-ui/react-menubar          package.json:36:6
+@radix-ui/react-navigation-menu  package.json:37:6
+@radix-ui/react-popover          package.json:38:6
+@radix-ui/react-progress         package.json:39:6
+@radix-ui/react-radio-group      package.json:40:6
+@radix-ui/react-scroll-area      package.json:41:6
+@radix-ui/react-select           package.json:42:6
+@radix-ui/react-separator        package.json:43:6
+@radix-ui/react-slider           package.json:44:6
+@radix-ui/react-switch           package.json:46:6
+@radix-ui/react-tabs             package.json:47:6
+@radix-ui/react-toast            package.json:48:6
+@radix-ui/react-toggle           package.json:49:6
+@radix-ui/react-toggle-group     package.json:50:6
+@radix-ui/react-tooltip          package.json:51:6
+@react-three/postprocessing      package.json:54:6
+@studio-freight/lenis            package.json:55:6
+autoprefixer                     package.json:58:6
+cmdk                             package.json:61:6
+date-fns                         package.json:62:6
+embla-carousel-react             package.json:63:6
+input-otp                        package.json:66:6
+playwright                       package.json:71:6
+postprocessing                   package.json:72:6
+react-day-picker                 package.json:74:6
+react-hook-form                  package.json:76:6
+react-resizable-panels           package.json:77:6
+recharts                         package.json:78:6
+sonner                           package.json:79:6
+tailwindcss-animate              package.json:81:6
+vaul                             package.json:83:6
+zod                              package.json:84:6
+[93m[4mUnlisted dependencies[24m[39m (1)
+postcss-load-config  postcss.config.mjs:1:10
+[93m[4mUnlisted binaries[24m[39m (1)
+eslint  package.json
+[93m[4mUnused exports[24m[39m (4)
+generateWebsiteStructuredData     function  lib/structured-data.ts:32:17  
+generatePersonStructuredData      function  lib/structured-data.ts:55:17  
+generateBreadcrumbStructuredData  function  lib/structured-data.ts:75:17  
+buttonVariants                              components/ui/button.tsx:62:18
